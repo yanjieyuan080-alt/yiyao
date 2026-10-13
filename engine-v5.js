@@ -34,9 +34,10 @@ function question(q,requestedDomain){
  const demotion=/(降职|降级|被贬|下调职级|被撤职|免职)/.test(cleaned);
  const official=/(正式任命|职位任命|职务任命|被任命为|得到任命)/.test(cleaned);
  const breakup=/(分手|离婚|断联|彻底分开)/.test(cleaned);
+ const socialFriends=/(朋友|友谊|交友|交朋友|认识新人|结识新人|朋友圈子|社交圈)/.test(cleaned)&&!/(男女朋友|男朋友|女朋友|恋人|交往对象)/.test(cleaned);
  const hiringPartTimer=/(招聘兼职|招兼职|兼职员工|兼职人员|兼职店员|兼职人手|找兼职人员)/.test(cleaned);
  const sideJob=/(兼职|副业|私活|接单|外包活|临时项目|临时工作)/.test(cleaned)&&!hiringPartTimer;
- const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":sideJob?"side_job":hiringPartTimer?"part_time_hire":base.object?.subtype||"general";
+ const eventSubtype=socialFriends?"friendship_new":promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":sideJob?"side_job":hiringPartTimer?"part_time_hire":base.object?.subtype||"general";
  const recognize=[
   ["health",/健康|身体|症状|生病|疾病|病情|手术|康复|怀孕|胎儿/],
   ["legal",/官司|法院|起诉|诉讼|仲裁|法律纠纷|判决/],
@@ -44,12 +45,13 @@ function question(q,requestedDomain){
   ["property",/房子|买房|卖房|租房|搬家|房屋|房产|合同|协议|签约/],
   ["finance",/工资|财运|收入|回款|资金|盈利|利润|欠款|还款|投资|钱|赚钱|储值/],
   ["relationship",/男朋友|女朋友|恋爱|复合|婚姻|结婚|分手|感情|伴侣|前任/],
+  ["social",/朋友|友谊|交友|交朋友|认识新人|结识新人|社交圈/],
   ["cooperation",/合作|合伙|搭档|伙伴|团队协作|共同经营|利益分配|竞争/],
   ["children",/孩子|子女|亲子|兴趣|休养|休闲|创作/],
   ["career",/工作|项目|职位|岗位|事业|职业|升职|降职|任命|领导|公司|门店|上班|兼职|副业|私活|接单|外包活/]
  ];
  const detected=recognize.find(([,reg])=>reg.test(cleaned))?.[0];
- let field=(promotion||demotion||official||sideJob||hiringPartTimer)?"career":detected||base.field||"general";
+ let field=socialFriends?"social":(promotion||demotion||official||sideJob||hiringPartTimer)?"career":detected||base.field||"general";
  if(!field){field=/(项目|岗位|职位|职场|升职|降职|任命)/.test(cleaned)?"career":null;}
  const manual={money:"finance",house:"property",friends:"cooperation",career:"career",relationship:"relationship",children:"children",health:"health"};
  if(!promotion&&!demotion&&!official&&requestedDomain&&requestedDomain!=="auto"&&manual[requestedDomain])field=manual[requestedDomain];
@@ -59,7 +61,7 @@ function question(q,requestedDomain){
  const isRisk=/(风险|危险|代价|阻碍在哪里)/.test(cleaned);
  const isImpact=/(对我有什么影响|对我个人.*影响|会给我带来什么)/.test(cleaned);
  const isComparison=/(哪个更|哪一个更|对比|比较|还是.*更好)/.test(cleaned);
- const isOpportunity=(base.intent==="new_opportunity"||
+ const isOpportunity=(socialFriends&&/(新朋友|新的朋友|认识新人|结识新人|交到朋友|交新朋友)/.test(cleaned))||(base.intent==="new_opportunity"||
     ((sideJob||hiringPartTimer)&&/(会有|还有|进来|出现|找上|来找|有没有|找到|能不能|能否|机会|新增|未来|接下来|近期)/.test(cleaned)&&
      !/(已经|目前正在做|做了之后|应该接|该不该接|要不要接)/.test(cleaned)))&&!promotion&&!demotion;
  const isOutcome=/(会不会|是否|能不能|能否|能否在|能.*吗|会.*吗)/.test(cleaned);
@@ -73,7 +75,7 @@ function question(q,requestedDomain){
 function selectUse(i){
  const b=DOMAIN[i.field]||DOMAIN.general;
  return {primary:b.primary,secondary:b.secondary.slice(),label:b.label,topic:
-  i.object.subtype==="promotion"?"正式升职":i.object.subtype==="demotion"?"降职或职级下调":i.object.subtype==="appointment"?"正式任命":i.object.subtype==="side_job"?"新的兼职工作":i.object.subtype==="part_time_hire"?"兼职人员到岗":
+  i.object.subtype==="friendship_new"?"结识新朋友":i.object.subtype==="promotion"?"正式升职":i.object.subtype==="demotion"?"降职或职级下调":i.object.subtype==="appointment"?"正式任命":i.object.subtype==="side_job"?"新的兼职工作":i.object.subtype==="part_time_hire"?"兼职人员到岗":
   i.field==="career"&&i.intent==="new_opportunity"?"新工作或项目":b.event};
 }
 function branch(r){return String(r||"").slice(-1)}
@@ -91,6 +93,27 @@ function add(list,id,group,effect,fact,meaning,priority=30){
 }
 function evaluate(c,i,use){
  const primary=use.primary,self=c.rows[c.a.shi-1],mov=c.rows.filter((r,k)=>[6,9].includes(c.totals[k]));
+ if(i.object.subtype==="friendship_new"){
+  const other=c.rows[c.a.ying-1],friends=c.rows.filter(r=>r.r==="兄弟"),selfMoved=mov.some(r=>r.i===self.i);
+  const clues=[
+   {id:"social_world",group:"self",effect:"neutral",priority:92,fact:"世爻"+self.gz+self.r+(selfMoved?"发动":"安静")+(c.empty.includes(branch(self.gz))?"，旬空":""),
+    meaning:selfMoved?"你本人对应的爻有变化，交友活动或自身状态是观察焦点；但不等于已经遇见朋友。":"世爻静守，不能据此断定社交情况不变。"},
+   {id:"social_change",group:"change",effect:selfMoved?"neutral":"unresolved",priority:85,
+    fact:mov.length?mov.map(r=>POS[r.i]+"爻 "+r.gz+r.r+"化"+r.vgz+r.vr+"（"+back(r.gz,r.vgz)+"）").join("；"):"六爻安静",
+    meaning:selfMoved?"世爻动变表明本人一侧有变化象义；需要与兄弟用神及应爻合参。":"静卦不意味着不会认识新朋友。"},
+   {id:"social_other",group:"response",effect:"neutral",priority:75,fact:"应爻"+other.gz+other.r+(c.empty.includes(branch(other.gz))?"，旬空":""),
+    meaning:"应爻可辅助参考外部交往，但不能据此确定会出现某个具体的人。"}
+  ];
+  if(friends.length)clues.push({id:"social_brothers",group:"usegod",effect:"neutral",priority:90,fact:friends.map(r=>POS[r.i]+"爻"+r.gz+r.r).join("、"),meaning:"传统六亲的兄弟爻是朋友同辈的参考用神；其动静及日月仍需校核。"});
+  else clues.push({id:"social_hidden",group:"usegod",effect:"unresolved",priority:99,fact:"本卦兄弟爻没有明现",meaning:"涉及朋友的主要传统用神未在本卦显现；伏神飞神关系尚未完整校验，不能断定未来没有朋友。"});
+  if(selfMoved&&c.empty.includes(branch(self.gz)))clues.push({id:"social_world_void",group:"void",effect:"unresolved",priority:96,fact:"世爻"+self.gz+"发动并逢旬空",meaning:"传统上提示本人这侧的行动或交往条件尚不稳定，须辨空亡与动爻关系。"});
+  const unresolved=clues.filter(x=>x.effect==="unresolved"),contextual=clues.filter(x=>x.effect!=="unresolved");
+  return {status:"insufficient_evidence",confidence:"limited",scope:"partial-traditional-signals",primary:"兄弟",selected:null,
+   supporting_factors:[],restricting_factors:[],unresolved_factors:unresolved,contextual_factors:contextual,
+   conflict:false,opportunity_signals:[],realization_constraints:[],limitations:["本卦兄弟爻不明现时须核验伏神，不得将其断为无朋友","旬空及动变不能当作现实中新朋友出现或不出现的证据","传统卦象不是对社交事件的科学预测"],
+   question:i.question,domain:"social",subtype:"friendship_new",time_window:i.window};
+ }
+
  const positive=[],negative=[],neutral=[],unresolved=[];
  const register=(id,group,effect,fact,meaning,priority)=>{
   const item={id,group,effect,fact,meaning,priority};
@@ -240,6 +263,21 @@ function humanize(c,i,use,j,verified){
   insufficient_evidence:"这张卦关于"+scope+"的关键信息不够，暂时不能判断会不会发生。"
  }[j.status];
  let lead=verdict;
+ if(i.object.subtype==="friendship_new"){
+  const world=c.rows[c.a.shi-1],other=c.rows[c.a.ying-1];
+  const siblings=c.rows.filter(r=>r.r==="兄弟");
+  const wmove=[6,9].includes(c.totals[world.i]);
+  const reasons=[
+   "这次实际发动的是"+(wmove?"世爻"+world.gz+world.r:"其他爻")+"，"+(wmove?"你自己的交往状态或行动是卦内变化焦点，但这不等于已经结识新朋友。":"这条动变不直接证明会有新的朋友出现。"),
+   siblings.length?"兄弟爻是传统上观察朋友、同辈的参考位置，仍需结合日月动变判断。":"本卦没有明现兄弟爻，传统上需继续查伏神；不能据此说你未来没有新朋友。",
+   "应爻"+other.gz+other.r+"可辅助观察外部交往。"+(c.empty.includes(branch(world.gz))?"世爻又逢旬空，当前无法判断未来三个月结识新朋友的结果。":"目前没有足够的条件证明新朋友会在期限内出现。")
+  ];
+  return {headline:"关于"+i.window+"会不会认识新朋友：这张卦存在你本人交往状态变化的传统线索，但不足以判断一定会或一定不会交到新朋友。不能从本卦推断具体人数或日期。",
+   why:reasons,brief:"本卦"+c.a.name+"，变"+c.b.name+"；仅用传统六爻作为民俗文化参考。",
+   action:"可以关注现实中是否有新的社交接触、主动交流及持续联系。结识新朋友取决于真实相处，不需要用商业合作的分工或收益标准衡量。",
+   scope:scopeTerm,technicalNote:"六爻为民俗文化解释，不可靠预测现实交友结果；伏神及旬空的综合分析仍有规则限制。"};
+ }
+
  let scenarioWhy=null;
  if(isTime){
   const who=i.object.subtype==="promotion"?"你什么时候能升职":i.object.subtype==="appointment"?"你什么时候会得到正式任命":scope+"什么时候发生";
@@ -345,7 +383,7 @@ function render(c,i,use,j,h,verified){
  const movers=c.rows.filter(r=>[6,9].includes(c.totals[r.i]));
  const movedText=movers.length?movers.map(r=>POS[r.i]+"爻「"+lines[r.i]+"」").join("；"):"本次没有动爻。";
  const sub=(label,arr)=>arr.length?"<h4>"+ESC(label)+"</h4><ul>"+arr.map(x=>"<li>"+ESC(x.fact)+" — "+ESC(x.meaning)+" <small>["+ESC(x.id)+"]</small></li>").join("")+"</ul>":"";
- return '<div class="focus-report yiyan-v5" data-engine="5.2.0">'+
+ return '<div class="focus-report yiyan-v5" data-engine="5.2.1">'+
  '<div class="section-title">先说结论</div><p class="v5-lead"><strong>'+ESC(h.headline)+'</strong></p>'+
  '<div class="section-title">为什么这样说</div><ol class="v5-why">'+h.why.map(x=>"<li>"+ESC(x)+"</li>").join("")+"</ol>"+
  '<div class="section-title">接下来最值得关注什么</div>'+paragraph(h.action)+
@@ -365,7 +403,7 @@ function interpret(c){
  const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
-  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.2.0"};
+  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.2.1"};
 }
-g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.2.0"};
+g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.2.1"};
 })(window);

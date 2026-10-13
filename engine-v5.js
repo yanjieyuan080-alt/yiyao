@@ -22,7 +22,7 @@ const DOMAIN={
  health:{label:"健康",primary:null,secondary:[],event:"健康状况",action:"身体症状和检查结果请交由专业医疗人员判断，占卜不能用于诊断"},
  general:{label:"事情",primary:null,secondary:[],event:"所问事项",action:"把问题明确成一件可以观察结果的具体事情"}
 };
-function question(q){
+function question(q,requestedDomain){
  const text=String(q||"").trim();
  const base=core.identify(text);
  if(!text)return {ok:false,error:"请先输入一个问题。"};
@@ -33,6 +33,8 @@ function question(q){
  const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":base.object?.subtype||"general";
  let field=(promotion||demotion||official)?"career":base.field;
  if(!field){field=/(项目|岗位|职位|职场|升职|降职|任命)/.test(cleaned)?"career":null;}
+ const manual={money:"finance",house:"property",friends:"cooperation",career:"career",relationship:"relationship",children:"children",health:"health"};
+ if(!promotion&&!demotion&&!official&&requestedDomain&&requestedDomain!=="auto"&&manual[requestedDomain])field=manual[requestedDomain];
  if(!field)return {ok:false,error:"暂时看不出你问的是哪一类事情，请写清具体对象。"};
  const isWhen=/(什么时候|何时|哪天|几号|几月|多久|多长时间)/.test(cleaned);
  const isChoice=/(该不该|要不要|是否接受|接不接|值得不值得)/.test(cleaned);
@@ -81,7 +83,16 @@ function evaluate(c,i,use){
  }else if(!sourceRows.length){
   register("no_visible_primary","usegod","unresolved","本卦六爻中没有明现的"+(primary||"对应")+"用神","需要继续核对伏神和传统取用法，现有规则不能判断方向",100);
  }else if(primary==="世应"){
-  register("relationship_context","usegod","unresolved","本题需要结合世爻、应爻和具体占问对象","关系或合作双方并非仅凭生克就能得知真实意愿",90);
+  const other=c.rows[c.a.ying-1], a=BRANCH[branch(self.gz)],b=BRANCH[branch(other.gz)];
+  register("both_sides","usegod","neutral","世爻"+self.gz+"、应爻"+other.gz,"世应可以作为双方在传统卦中的位置，但不能代表真实想法",90);
+  if(c.empty.includes(branch(other.gz)))register("other_void","void","unresolved","应爻"+other.gz+"逢空","对方或外部条件的传统信息仍不充分",88);
+  if(CONTROLS[b]===a)register("other_controls_self","pair","negative",other.gz+"克"+self.gz,"传统上有外部条件制约本人一方的线索，现实含义仍需验证",80);
+  else if(GENERATES[b]===a)register("other_support_self","pair","positive",other.gz+"生"+self.gz,"传统上有外部条件支持本人一方的线索，但不代表对方一定愿意合作",78);
+  else register("self_other_context","pair","neutral","世应五行需要结合动静、月日和实际占问对象","不能直接用一组生克推断关系能否维系",45);
+  if(mov.some(r=>r.i===other.i))register("other_moved","change","neutral",POS[other.i]+"爻为应爻且发动","外部条件有变化象义，并不证明对方会作出某种决定",55);
+  // 世应类的细断缺少专门关系/合作取用体系，故标记为有限。
+  register("context_limit","method","unresolved","世应不是完整的对象取用规则","双方关系、身份和事件性质尚需结合具体流派独立复核",35);
+  used=self;
  }else{
   const movers=sourceRows.filter(r=>mov.some(m=>m.i===r.i));
   if(sourceRows.length===1){used=sourceRows[0];selectionReason="唯一明现的主用神";}
@@ -153,9 +164,25 @@ function humanize(c,i,use,j,verified){
  const mainEvidence=[...j.restricting_factors,...j.supporting_factors,...j.unresolved_factors]
   .sort((a,b)=>b.priority-a.priority).slice(0,3);
  if(!mainEvidence.length)mainEvidence.push(...j.contextual_factors.slice(0,2));
- let why=mainEvidence.map(x=>x.meaning+"（"+x.fact+"）");
+ const plain=x=>{
+  if(x.id==="no_visible_primary")return "这件事最关键的传统线索没有直接出现在本卦中，而隐藏线索的规则尚未完善，因此暂时没法判断方向。";
+  if(x.id==="multiple_primary")return "同一种关键线索出现了不止一次，程序还无法可靠确定哪一个才代表你问的这件事。";
+  if(x.id==="health_boundary")return "卦象没有医学判断能力，不能靠它推测病情。";
+  if(x.id==="multi_motion")return "这张卦同时有多处变化，程序还没有完成它们相互作用的判断，不能按变化数量定结果。";
+  if(x.id==="primary_void")return "与这件事直接相关的一爻出现了“旬空”，在传统说法中意味着某些条件还要继续核实。";
+  if(x.id==="back_control")return "关键一爻变化后，反而形成制约，这是需要注意的传统阻力信号。";
+  if(x.id==="back_generate")return "关键一爻变化后得到生扶，在目前实现的传统规则中属于支持线索。";
+  if(x.id.endsWith("_clash"))return "与这件事直接相关的一爻受到当日或当月干支冲动；这不是必败，但属于不能忽略的制约。";
+  if(x.id.endsWith("_generate")||x.id.endsWith("_same"))return "与这件事相关的一爻得到日月支持，但还不足以保证事情会成功。";
+  if(x.id.endsWith("_control"))return "与这件事相关的一爻受到日月克制，属于阻力线索。";
+  if(x.id==="other_controls_self")return "在传统的世应关系中，外部一方有制约本人的象义，但不能据此猜测对方的真实心思。";
+  if(x.id==="other_support_self")return "世应关系中有生扶本人的象义，但这不代表现实中对方已经答应。";
+  return x.meaning.replace(/官鬼|父母|妻财|子孙|兄弟/g,"相关爻");
+ };
+ let why=mainEvidence.map(plain);
  if(j.conflict)why.push("既有支持也有制约，现有规则还不足以分出主次。");
  if(!why.length)why=["当前没有足够的、可以直接核查的核心用神信息。"];
+ why=[...new Set(why)].slice(0,3);
  const brief="本卦"+c.a.name+(c.a.name!==c.b.name?"，变"+c.b.name:"（静卦）")+"。卦名和变卦只作传统象义参考，不能单凭卦名断成败。";
  const config=DOMAIN[i.field]||DOMAIN.general;
  const action=i.object.subtype==="promotion"?"观察是否已有明确晋升名额、上级提名、评审标准和正式任命安排":
@@ -185,7 +212,7 @@ function render(c,i,use,j,h,verified){
 function interpret(c){
  // 先通过 V4.2 已有的八宫、变卦、爻序、六亲、六兽及原始钱面检查。
  const verified=old.verify(c);
- const i=question(c.question);if(!i.ok)throw Error(i.error);
+ const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
   judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.0.0"};

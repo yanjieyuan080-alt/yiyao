@@ -52,7 +52,7 @@ body::before{content:"✳ 今天也要开心！";position:fixed;left:1.6%;bottom
 body::after{content:"(ง •̀_•́)ง  冲鸭！";position:fixed;right:2%;top:9%;font-family:"Comic Sans MS","Kaiti",cursive;font-weight:bold;font-size:clamp(14px,1.8vw,25px);color:#f28716;transform:rotate(9deg);opacity:.16;pointer-events:none}
 .card{position:relative;z-index:1}.analysis .section-title{border-left:4px solid #f88917;padding-left:11px}.analysis p{line-height:1.95;margin-bottom:17px}.analysis .focus-report{background:#fff4e3;border:1px dashed #efbc7c;padding:18px 21px;border-radius:16px;margin-top:22px}.analysis .focus-report p{margin-bottom:14px}
 @media(max-width:760px){.wrap::before,.wrap::after,body::before,body::after{opacity:.08;font-size:16px}}
-.analysis .focus-report .verdict{background:#ffe7c2;padding:17px 19px;border-left:5px solid #ef7b0e;border-radius:8px;font-size:17px;color:#542c10}.analysis .focus-report p{line-height:2}</style></head><body><div class="wrap"><header><div class="eyebrow">蜜城之恋 · 趣味六爻小测试</div><h1>易爻</h1><p>心有所问，六爻有象 · 依古法排卦，以常言解意</p></header><main class="grid"><section class="card"><h2>01 · 静心问事</h2><label class="label" for="question">你想问的事情</label><textarea id="question" maxlength="500" placeholder="例如：未来三个月，这份工作是否有继续发展的空间？"></textarea><div class="help">一次聚焦一个问题，具体的问题更容易获得有针对性的解读。</div><label class="label" for="kind">问题类型 / 取用神</label><select id="kind"><option value="auto">自动判断（可手动调整）</option><option value="career">事业 / 考试 / 官非（官鬼）</option><option value="money">收入 / 生意 / 财运（妻财）</option><option value="relationship">感情 / 伴侣（需结合世应）</option><option value="house">房屋 / 合同 / 文书（父母）</option><option value="friends">朋友 / 合作 / 竞争（兄弟）</option><option value="children">子女 / 兴趣 / 休养（子孙）</option><option value="health">身体 / 疾病（官鬼为病象）</option></select></section><section class="card"><h2>02 · 起卦方式</h2><div class="radio"><label><input type="radio" name="method" value="coins" checked> 三钱六摇 · 随机</label><label><input type="radio" name="method" value="manual"> 手动录入六爻</label></div><p class="help">三钱六摇：每爻掷三枚钱币，正面记3、反面记2，依初爻到上爻，共六次。随机起卦使用浏览器安全随机数。</p><div id="manualBox" style="display:none"><label class="label" for="manual">依初爻至上爻，输入六组（三位数字，每位2或3）</label><textarea id="manual" placeholder="例如：223 332 222 233 323 333"></textarea></div><label class="label" for="timezone">起卦时区</label><select id="timezone"><option value="Asia/Shanghai">北京时间 · UTC+8</option><option value="America/Los_Angeles">美国太平洋时间</option><option value="America/New_York">美国东部时间</option><option value="Europe/London">英国时间</option><option value="Asia/Tokyo">日本时间</option></select><p class="help">时间按所选时区计算，年以立春、月以节气分界。日柱采用子初换日口径。</p><button class="btn" id="cast">起卦 · 见其所象</button><div id="error" class="error" aria-live="polite"></div></section><section id="output" class="full details"><div class="grid"><section class="card full"><h2>03 · 起卦时间</h2><div id="time" class="meta"></div><p class="sub" id="topic"></p></section><section class="card full"><h2>04 · 本卦与变卦</h2><div id="hexes" class="hexset"></div><p id="movement" class="sub"></p></section><section class="card full"><h2>05 · 三钱六摇</h2><div class="scroll"><table><thead><tr><th>爻位</th><th>钱面（初→上）</th><th>和数</th><th>阴阳</th><th>符号</th></tr></thead><tbody id="tossTable"></tbody></table></div></section><section class="card full"><h2>06 · 纳甲装卦盘</h2><div id="palace" class="meta"></div><div class="scroll"><table><thead><tr><th>爻位</th><th>本 / 变</th><th>本卦干支</th><th>六亲</th><th>世应</th><th>六兽</th><th>旬空</th><th>动变（变爻干支、六亲）</th></tr></thead><tbody id="chartTable"></tbody></table></div></section><section class="card full analysis"><h2>07 · 易爻解卦</h2><div id="reading"></div><button class="btn secondary" id="copy">复制完整卦盘</button><button class="btn secondary" id="again">再起一卦</button><p class="sub">本工具以京房八宫纳甲排盘，解读属于传统民俗文化的规则化辅助分析，不提供确定的未来预测；医疗、法律和重要财务决策请以专业意见与客观证据为准。</p></section></div></section></main><p class="footer">易爻 · 蜜城之恋趣味版 V4.0.1 修复 · 2026-10-13</p></div><script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script><script src="./engine-v3.js?v=3.0.1"></script><script src="./engine-v4.js?v=4.0.1"></script><script>
+.analysis .focus-report .verdict{background:#ffe7c2;padding:17px 19px;border-left:5px solid #ef7b0e;border-radius:8px;font-size:17px;color:#542c10}.analysis .focus-report p{line-height:2}</style></head><body><div class="wrap"><header><div class="eyebrow">蜜城之恋 · 趣味六爻小测试</div><h1>易爻</h1><p>心有所问，六爻有象 · 依古法排卦，以常言解意</p></header><main class="grid"><section class="card"><h2>01 · 静心问事</h2><label class="label" for="question">你想问的事情</label><textarea id="question" maxlength="500" placeholder="例如：未来三个月，这份工作是否有继续发展的空间？"></textarea><div class="help">一次聚焦一个问题，具体的问题更容易获得有针对性的解读。</div><label class="label" for="kind">问题类型 / 取用神</label><select id="kind"><option value="auto">自动判断（可手动调整）</option><option value="career">事业 / 考试 / 官非（官鬼）</option><option value="money">收入 / 生意 / 财运（妻财）</option><option value="relationship">感情 / 伴侣（需结合世应）</option><option value="house">房屋 / 合同 / 文书（父母）</option><option value="friends">朋友 / 合作 / 竞争（兄弟）</option><option value="children">子女 / 兴趣 / 休养（子孙）</option><option value="health">身体 / 疾病（官鬼为病象）</option></select></section><section class="card"><h2>02 · 起卦方式</h2><div class="radio"><label><input type="radio" name="method" value="coins" checked> 三钱六摇 · 随机</label><label><input type="radio" name="method" value="manual"> 手动录入六爻</label></div><p class="help">三钱六摇：每爻掷三枚钱币，正面记3、反面记2，依初爻到上爻，共六次。随机起卦使用浏览器安全随机数。</p><div id="manualBox" style="display:none"><label class="label" for="manual">依初爻至上爻，输入六组（三位数字，每位2或3）</label><textarea id="manual" placeholder="例如：223 332 222 233 323 333"></textarea></div><label class="label" for="timezone">起卦时区</label><select id="timezone"><option value="Asia/Shanghai">北京时间 · UTC+8</option><option value="America/Los_Angeles">美国太平洋时间</option><option value="America/New_York">美国东部时间</option><option value="Europe/London">英国时间</option><option value="Asia/Tokyo">日本时间</option></select><p class="help">时间按所选时区计算，年以立春、月以节气分界。日柱采用子初换日口径。</p><button class="btn" id="cast">起卦 · 见其所象</button><div id="error" class="error" aria-live="polite"></div></section><section id="output" class="full details"><div class="grid"><section class="card full"><h2>03 · 起卦时间</h2><div id="time" class="meta"></div><p class="sub" id="topic"></p></section><section class="card full"><h2>04 · 本卦与变卦</h2><div id="hexes" class="hexset"></div><p id="movement" class="sub"></p></section><section class="card full"><h2>05 · 三钱六摇</h2><div class="scroll"><table><thead><tr><th>爻位</th><th>钱面（初→上）</th><th>和数</th><th>阴阳</th><th>符号</th></tr></thead><tbody id="tossTable"></tbody></table></div></section><section class="card full"><h2>06 · 纳甲装卦盘</h2><div id="palace" class="meta"></div><div class="scroll"><table><thead><tr><th>爻位</th><th>本 / 变</th><th>本卦干支</th><th>六亲</th><th>世应</th><th>六兽</th><th>旬空</th><th>动变（变爻干支、六亲）</th></tr></thead><tbody id="chartTable"></tbody></table></div></section><section class="card full analysis"><h2>07 · 易爻解卦</h2><div id="reading"></div><button class="btn secondary" id="copy">复制完整卦盘</button><button class="btn secondary" id="again">再起一卦</button><p class="sub">本工具以京房八宫纳甲排盘，解读属于传统民俗文化的规则化辅助分析，不提供确定的未来预测；医疗、法律和重要财务决策请以专业意见与客观证据为准。</p></section></div></section></main><p class="footer">易爻 · 蜜城之恋趣味版 V4.0.2 起卦恢复 · 2026-10-13</p></div><script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script><script src="./engine-v3.js?v=3.0.1"></script><script src="./engine-v4.js?v=4.0.1"></script><script>
 'use strict';
 const $=id=>document.getElementById(id), GAN='甲乙丙丁戊己庚辛壬癸'.split(''), ZHI='子丑寅卯辰巳午未申酉戌亥'.split('');
 const els={木:'木',火:'火',土:'土',金:'金',水:'水'}, zEl={子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
@@ -86,162 +86,14 @@ $('movement').textContent=moves.some(Boolean)?'动爻：'+moves.map((x,i)=>x?pos
 $('tossTable').innerHTML=rows.map(({i})=>`<tr class="${moves[i]?'moving':''}"><td>${position[i]}</td><td>${throwing[i].join(' + ')}</td><td>${totals[i]}</td><td>${bits[i]?'阳':'阴'}${moves[i]?'（老）':'（少）'}</td><td>${bits[i]?'⚊':'⚋'} ${totals[i]===6?'×':totals[i]===9?'○':''}</td></tr>`).join('');
 $('palace').innerHTML=`<span class="pill">${a.palace}宫 · 五行${a.home}</span><span class="pill">${stages[a.idx]}</span><span class="pill">世在${position[a.shi-1]} · 应在${position[a.ying-1]}</span>`;
 $('chartTable').innerHTML=rows.slice().reverse().map(r=>{let i=r.i;return `<tr class="${moves[i]?'moving':''}"><td>${position[i]}</td><td>${bits[i]?'⚊':'⚋'} → ${changed[i]?'⚊':'⚋'}</td><td>${r.gz}（${zEl[r.gz[1]]}）</td><td>${r.r}</td><td>${i+1===a.shi?'世':i+1===a.ying?'应':'—'}</td><td>${r.animal}</td><td>${r.empty?'空':'—'}</td><td>${moves[i]?`${totals[i]===6?'老阴×':'老阳○'} → ${r.vgz}（${r.vr}）`:'静'}</td></tr>`}).join('');
-const k=choice(question,$('kind').value),[u,why]=use[k],candidate=rows.filter(r=>u.includes(r.r)),world=rows[a.shi-1],respond=rows[a.ying-1],month=t.month[1],day=t.day[1],mc=moves.filter(Boolean).length;
-let useText=candidate.length?candidate.map(r=>`${position[r.i]}${r.gz}${r.r}${r.empty?'（旬空）':''}${moves[r.i]?'（发动）':''}`).join('；'):'本卦不现显性用神，应结合伏神及具体问题复核，不能仅凭表面六亲下结论。';
-const dd=(r)=>`月建${month}与${r.gz[1]}呈${influence(month,r.gz[1])}，日辰${day}与之呈${influence(day,r.gz[1])}`;
-const active=rows.filter(r=>moves[r.i]);let insight=`<div class="section-title">用神及依据</div><p>此问暂按${pct(u)}取用，着眼于${escapeHTML(why)}。${escapeHTML(useText)}。${k==='relationship'?'感情双方以世、应及对方角色综合辨认，不能把妻财或官鬼直接等同所有关系。':''}</p>`;
-insight+=`<div class="section-title">世应分析</div><p>世在${pct(position[a.shi-1])}，为${world.gz}${world.r}；应在${pct(position[a.ying-1])}，为${respond.gz}${respond.r}。世代表自己在这件事中的位置，应代表对方或外部环境。${zEl[world.gz[1]]===zEl[respond.gz[1]]?'世应五行同气，双方立场存在相近之处，但还需要看冲合与现实表现。':sheng[zEl[respond.gz[1]]]===zEl[world.gz[1]]?'应爻五行生世，传统上偏向外部给予支持的信号。':ke[zEl[respond.gz[1]]]===zEl[world.gz[1]]?'应爻五行克世，传统上偏向环境施压或意见有冲突。':sheng[zEl[world.gz[1]]]===zEl[respond.gz[1]]?'世爻生应，意味着自己投入、付出往往更多。':ke[zEl[world.gz[1]]]===zEl[respond.gz[1]]?'世爻克应，象征有主动争取和推动的空间，但也意味着需要付出精力。':'世应不构成直接生克，宜重点结合动爻和日月观察。'}</p>`;
-insight+=`<div class="section-title">动爻影响</div><p>${mc?`共有${mc}个动爻：${active.map(r=>`${position[r.i]}${r.gz}${r.r}变${r.vgz}${r.vr}`).join('；')}。动爻是变化焦点；变爻六亲均依${a.palace}宫${a.home}行计算。${active.some(r=>r.i===a.shi-1)?'世爻发动，说明自己在此事中可能需要主动调整行动。':''}${active.some(r=>r.i===a.ying-1)?'应爻发动，说明对方或环境的变化值得留意。':''}`:'本卦无动爻，先以世、应、用神和日月建的静态关系辨析，不强行制造转折。'}</p>`;
-insight+=`<div class="section-title">日月建影响</div><p>月建为${pct(t.month)}，日辰为${pct(t.day)}。世爻${dd(world)}。${candidate.length?`主要用神${candidate.slice(0,2).map(r=>`${position[r.i]}${r.gz}：${dd(r)}`).join('；')}。`:''}月建侧重阶段性环境，日辰侧重当前引动；这些生克冲合信号需结合旺衰与现实证据，不能只凭一项判吉凶。</p>`;
-insight+=`<div class="section-title">空亡与六兽</div><p>${pct(`${empty.join('')}空`)}；${rows.filter(r=>r.empty).length?rows.filter(r=>r.empty).map(r=>`${position[r.i]}${r.gz}`).join('、')+'落空，传统上提示信息尚未落实或时机未到。':'本卦六爻均不落此旬空。'}世爻临${world.animal}，应爻临${respond.animal}。六兽只辅助观察情绪与情境（青龙偏喜庆、朱雀偏言语、勾陈偏牵绊、螣蛇偏疑虑、白虎偏冲突、玄武偏隐情），不可直接以六兽断吉凶。</p>`;
-// Directional rule-based reading: every conclusion must list its supporting signals.
-const favorable=r=>[influence(month,r.gz[1]),influence(day,r.gz[1])].filter(x=>x==='生'||x==='临'||x==='合').length;
-const adverse=r=>[influence(month,r.gz[1]),influence(day,r.gz[1])].filter(x=>x==='冲'||x==='克').length;
-const primary=candidate.slice().sort((x,y)=>(Number(y.i===a.shi-1)-Number(x.i===a.shi-1))||(Number(moves[y.i])-Number(moves[x.i]))||(favorable(y)-favorable(x)))[0];
-const ally=sheng[zEl[respond.gz[1]]]===zEl[world.gz[1]];
-const obstacle=ke[zEl[respond.gz[1]]]===zEl[world.gz[1]];
-const evidence=[];
-let points=0;
-if(primary){
- let f=favorable(primary),v=adverse(primary);points+=f-v;
- evidence.push('与问题最相关的'+primary.r+'在'+position[primary.i]+'，'+(f>v?'得到日月支持':v>f?'受到日月制约':'日月助力与阻力不明显')+'（'+t.month[1]+'月建、'+t.day[1]+'日辰）');
- if(primary.empty){points-=2;evidence.push('关键用神落空，事情可能还没有落实');}
- if(moves[primary.i]) evidence.push('关键用神发动，后续变化值得关注');
-}else{evidence.push('本卦没有出现所取用神，尚未完成伏神核验');}
-if(ally){points+=1;evidence.push('应爻生世，外界对你有一定支持');}
-if(obstacle){points-=1;evidence.push('应爻克世，外部条件对你形成压力');}
-if(world.empty){points-=1;evidence.push('世爻落空，你自己的准备或把握可能不足');}
-if(favorable(world)>adverse(world)){points+=1;evidence.push('世爻受到日月支持');}
-if(adverse(world)>favorable(world)){points-=1;evidence.push('世爻受到日月制约');}
-const decisive=!!primary;const tendency=!decisive?'信息不足':points>=2?'偏有利':points<=-2?'偏不利':'有机会，但有阻力';
-const answerMap={
-career:{good:'可以争取这次机会，但建议先确认条件，再主动推进。',bad:'不建议现在就孤注一掷争取，先核实岗位和对方态度，保留其他选择。',mixed:'值得接触和尝试，但暂时不适合押上全部筹码。'},
-money:{good:'可以继续谈，但先确认收益、成本和兑现条件。',bad:'暂时不宜投入更多资金，先把风险与回款条件弄清楚。',mixed:'可以小范围试探，不宜一次性重投入。'},
-relationship:{good:'可以主动沟通一次，重点看对方是否有实际回应。',bad:'不建议反复主动追问，先看对方是否愿意付出行动。',mixed:'可以表达一次想法，但不要靠猜测或单方面付出来维持关系。'},
-friends:{good:'可以试着沟通合作，但先讲清彼此的责任。',bad:'先保持边界，不宜把重要事情完全托付给对方。',mixed:'可以接触，但先用小事检验信任和配合。'},
-house:{good:'可以推进看房或谈合同，但一定检查条款。',bad:'先别急着签约或付款，重点排查合同风险。',mixed:'可以继续了解，但关键事项确认前不要仓促签字。'},
-children:{good:'可以按计划稳步推进，同时留意现实条件。',bad:'先调整计划、核实条件，再考虑下一步。',mixed:'先把眼前能确定的事情做好，不用急着定结果。'},
-health:{good:'卦象不能说明疾病会好转，请根据症状和专业检查决定下一步。',bad:'卦象不能判断病情严重程度，若有症状请及时就医。',mixed:'健康问题不要依赖卦象判断，按实际症状和专业建议处理。'}
-};
-const refuseIntent=/(不接|不做|不去|不签|不参与|放弃|拒绝|推掉|退出|不承接|不合作|辞掉|不入职)/.test(question);
-const refuseQuestion=refuseIntent&&/(项目|工作|机会|合作|客户|门店|店|岗位|offer|订单|任务|合同|职位)/i.test(question);
-const respondToRefusal=()=>{
- const lead=tendency==='偏有利'?'按本卦的基础信号，这个项目仍有一定机会。如果你不接，更明显的代价可能是失去这次业务成果、收入或关系积累的机会；但不能据此断定以后就没有机会。':tendency==='偏不利'?'按本卦的基础信号，眼下阻力偏多。如果你不接，可能暂时避开这一轮的工作压力与交付风险；代价是放弃这次项目收益和积累机会。':tendency==='有机会，但有阻力'?'按本卦的基础信号，这件事机会和阻力并存。如果你不接，最直接的是少承担五个店的工作量和交付责任，同时也会失去相应的收入与项目成绩；并没有足够卦象依据断定会因此得罪谁或失去未来机会。':'本卦缺少可核实的关键用神，不能据此判断不接的后果偏吉还是偏凶。';
- return {lead,action:'如果你倾向不接，先确认合同和承诺中有没有必须履行的义务，再把不接的决定、交接范围和时间说清楚。若担心关系受影响，可以提出明确的交接或替代方案，但别因为害怕后果就勉强承接。'};
-};
-const advice=answerMap[k]||answerMap.career;
-const action=tendency==='偏有利'?advice.good:tendency==='偏不利'?advice.bad:advice.mixed;
-const headline=!decisive?'目前证据不够，不能给出可靠的卦内倾向。':tendency==='偏有利'?'卦象偏向可以推进，但仍要核对现实条件。':tendency==='偏不利'?'卦象显示阻力偏多，暂时建议谨慎。':'卦象有利有弊，建议先试探，不要一次押定结果。';
-const limit=mc>1?'本卦多爻发动，尚未完成所有连环生克与回头生克的细断；此处只是初步倾向。':'本结论是基础生克规则下的初步倾向，尚未完成伏神及复杂动变细断。';
-const acceptProject=/(项目|门店|店|合作|任务|业务|客户)/.test(question)&&/(如果我接|我接了|接下来|接这个|接了|承接|接受|接手|拿下|做这个|做了|接不接)/.test(question)&&!refuseQuestion;
-const reportImpact=/(对我|影响|结果|后果|收获|发展|会怎样|怎么样|如何)/.test(question);
-const activeWorldThreat=active.filter(r=>ke[zEl[r.gz[1]]]===zEl[world.gz[1]]);
-const activeWorldAid=active.filter(r=>sheng[zEl[r.gz[1]]]===zEl[world.gz[1]]);
-const monthlySupport=favorable(world)>adverse(world);
-const transformedEmpty=active.filter(r=>empty.includes(r.vgz[1]));
-const harmPairs=['子未','丑午','寅巳','卯辰','申亥','酉戌'];
-const worldRespondHarm=harmPairs.some(pair=>pair.includes(world.gz[1])&&pair.includes(respond.gz[1]));
-const projectDetail=acceptProject?(()=>{
-const outcome=monthlySupport?'卦里体现的是你有承担这件事的能力与基础，并不意味着接了就能轻松成功。':'卦里显示你自身承压，接下来的推进需要更小心，不能只看机会。';
-const activeText=activeWorldThreat.length?'有动爻直接克世：'+activeWorldThreat.map(r=>position[r.i]+'的'+r.gz+r.r).join('、')+'。通俗说，就是做项目的过程中可能出现需要你亲自处理的阻力，工作量或摩擦不容易完全避开。':'动爻目前没有直接克世，仍要检查动爻变化及其他冲合关系，不能只凭这一点判断顺利。';
-const settleText=transformedEmpty.length?'特别注意：'+transformedEmpty.map(r=>position[r.i]+'化'+r.vgz+'，而'+r.vgz[1]+'逢旬空').join('；')+'。这提示变化后的收益或承诺尚有不确定性，不适合提前当成已经到手。':'变爻未见落此旬空，但收益是否落地仍需根据责任、合同和后续反馈确认。';
-return `<div class="section-title">围绕你问的项目：接了之后，会发生什么？</div>
-<p><strong>① 项目结果：</strong>${outcome}本卦是${a.name}、变卦是${b.name}。就传统卦意来说，「恒」更强调持续投入和长期执行，「升」偏向逐步推进、累积进展；这组卦名本身不等于最终一定成功，仍要回到世爻、用神和动爻。</p>
-<p><strong>② 对你的工作和压力：</strong>世爻是${world.gz}${world.r}，又以官鬼为此问的主要用神。官鬼持世，更容易把这件事看作要由你背责任、对结果负责的工作；月建${month}、日辰${day}对世爻的关系是${influence(month,world.gz[1])}与${influence(day,world.gz[1])}，${monthlySupport?'说明自身条件并不算弱，但条件有利不代表轻松。':'意味着现有支持力度有限，需要更重视自身资源。'}${activeText}</p>
-<p><strong>③ 对方会不会支持你：</strong>应爻${respond.gz}${respond.r}，${ally?'土生金，在基础五行关系上对世爻有生扶':'对世爻并不构成直接生扶'}。${worldRespondHarm?'不过世应的地支还形成相害关系，传统上可理解为双方表面能合作、细节上却可能有磨合或暗耗。':'这只能说明卦内的一种关系，不能等同于对方已经承诺给资源。'}因此最值得核实的是对方能否给到人手、预算、决策支持与明确的交付边界。</p>
-<p><strong>④ 你能得到什么：</strong>卦里既要看妻财（钱与项目收益），也要看官鬼（责任、职位与项目业绩）。${settleText}更可能先体现为经验、案例或承担责任的机会，至于奖金、收入、升职或得到认可，卦盘不能直接保证。</p>
-<p><strong>⑤ 这件事对你是否划算：</strong>只看「能不能做」，卦象给出一定支持；但「值不值得你做」要把收入和职业收益减去投入时间、跨店协调成本、其他项目被挤占的成本。卦象不能替你完成这笔账。建议先确认五个店各自的目标、项目周期、执行负责人、你是否有管理权，以及验收和报酬如何计算。</p>
-<p><strong>综合倾向：</strong>${activeWorldThreat.length?'有做成事情的空间，也存在明确的过程阻力。':'可以尝试推进，但结果仍取决于资源与执行。'}${reportImpact?'如果你问「对我有什么影响」，更该盯的是责任会不会加重、成果能不能归到你、资源是否匹配，而不只是项目表面是否启动。':''}不宜仅根据卦里的几个「生」就得出「一定值得接」的结论。</p>`})():'';
-const coreThemes={career:['项目或工作的发展','承担责任与获得认可','时间精力是否值得投入'],money:['收入与实际兑现','风险和成本','钱能否真正落袋'],relationship:['双方的投入','沟通和关系变化','关系后续是否稳定'],friends:['合作关系的实际状态','责任与边界','长期信任是否可靠'],house:['交易或合同推进','权利义务与手续','兑现和交付时间'],children:['自身状态与实际条件','推进过程中的变化','能否得到需要的支持'],health:['实际症状与身体状态','及时检查和处理','不以卦象代替医疗结论']};
-const factors=coreThemes[k]||coreThemes.career;
-const movingExplain=active.length?active.map(r=>{
- const changeRole=r.r+'变'+r.vr;
- const back=sheng[zEl[r.vgz[1]]]===zEl[r.gz[1]]?'变爻回头生本动爻':ke[zEl[r.vgz[1]]]===zEl[r.gz[1]]?'变爻回头克本动爻':sheng[zEl[r.gz[1]]]===zEl[r.vgz[1]]?'本动爻生变爻':ke[zEl[r.gz[1]]]===zEl[r.vgz[1]]?'本动爻克变爻':'本动爻与变爻同五行';
- return `${position[r.i]}由${r.gz}${r.r}变${r.vgz}${r.vr}，${back}。${empty.includes(r.vgz[1])?'变爻又逢旬空，变化后的结果尚难坐实。':''}`;
-}).join(' '):'全卦无动爻，本次不宜凭空解释出“某一爻将发生变化”。';
-const hexContext=`本卦「${a.name}」变「${b.name}」；名称是卦象背景，不能脱离世应和动爻单独推断好坏。世爻${world.gz}${world.r}（${position[a.shi-1]}）代表你自己，应爻${respond.gz}${respond.r}（${position[a.ying-1]}）代表事情的另一方或外部条件。`;
-const useContext=primary?`与问题对应的用神是${position[primary.i]}${primary.gz}${primary.r}：月建${month}对它是“${influence(month,primary.gz[1])}”，日辰${day}对它是“${influence(day,primary.gz[1])}”；${primary.empty?'又逢旬空，提示仍有待落实之处。':'不在旬空之内，但仍不能只靠这一点判断必然成功。'}`:'卦中没有直接出现所取用神，伏神尚待校验，单凭当前规则无法下确定判断。';
-const supportContext=`${ally?'应爻五行生世，外部具备支持你的卦内信号。':obstacle?'应爻五行克世，外部条件可能形成阻力。':'应爻与世爻未构成直接的生扶关系。'} ${world.empty?'世爻落空，眼下自己的把握或资源可能不足。':'世爻不落空，但仍要看有无实际执行资源。'} ${activeWorldThreat.length?'其中'+activeWorldThreat.map(r=>position[r.i]+r.gz).join('、')+'发动且克世，提示过程压力需要特别关注。':''}`;
-const deepReport=`<div class="focus-report"><div class="section-title">详细推演 · 把原因讲明白</div>
-<p><strong>你问的核心是：</strong>「${escapeHTML(question)}」。这里不只判断一个笼统的“好”或“坏”，还要分别看${factors.join('、')}。</p>
-<p><strong>第一层｜你和这件事的关系。</strong>${hexContext}这意味着分析重点不能只放在项目好不好，还要看你能不能承接、是否需要自己承担额外责任，以及对方能否提供相应的支持。世、应只是传统象征位置，并不能直接证明现实中的某个人一定这样做。</p>
-<p><strong>第二层｜关键因素究竟强不强。</strong>${useContext} 世爻方面：月建${month}与世爻${world.gz[1]}呈${influence(month,world.gz[1])}，日辰${day}与世爻呈${influence(day,world.gz[1])}。这些分别回答“这个阶段有没有条件”和“眼前有没有推动力”，但最终成败还必须看动爻及现实限制。</p>
-<p><strong>第三层｜变化会从哪里出现。</strong>${movingExplain}由此观察的是变化的来源、过程阻力，以及变化之后是否有承接，不能直接把某个动爻等同于确定发生的具体事件。</p>
-<p><strong>第四层｜你能得到支持，还是要自己扛。</strong>${supportContext}如果放在现实里检验，应该核查对方是否愿意给人、给预算、给决策权，或承担相应责任；只有口头支持并不足够。</p>
-<p><strong>第五层｜可能的结果以及代价。</strong>按当前已实现的规则，卦内方向为「${tendency}」。${tendency==='偏有利'?'说明基础生扶信号相对多，但这不意味着做起来毫无阻力，也不保证能得到收益。':tendency==='偏不利'?'说明限制和阻力信号较多，若要推进，先处理实际障碍通常比硬上更稳妥。':'说明现有信号不足以支持“一定顺利”或“一定不顺”，更适合保留调整空间。'}${refuseQuestion?'你问的是“不做的后果”，因此不应把有利于接手的信号直接反过来解释成不接就会倒霉。':'你问的是这件事的结果，不能把对事情有利误写成对你个人一定有利。'}</p>
-<p><strong>最后落到决策：</strong>${refuseQuestion?'拒绝之前，把违约义务、人员交接、合作沟通和放弃的收益分别确认清楚。':k==='career'?'重点确认这件事最终谁负责、谁执行、你有没有调配资源的权力、怎么评价成果、付出是否有对应回报。':'把决定拆成能核实的条件：对方回应、具体成本、时间节点和最终兑现方式。'} 卦象分析只能提供传统术数视角，不能替代真实项目数据和现实判断。</p></div>`;
-const workTrend=/工作|事业|职业|岗位|职场|项目/.test(question)&&/未来|接下来|后续|发展方向|发展趋势|走向|三个月|半年|一年|会发生什么|会怎样变化/.test(question)&&!/(如果我接|接了|不接|是否接受|要不要接|值得接|是否离职|要不要辞|离职好不好)/.test(question);
-const trajectoryWork=workTrend?(()=>{
- const moving=active.map(r=>r.i+1);
- const isLin=a.name==='地泽临'&&b.name==='泽天夬';
- const parts=isLin?[
- '六三发动：传统爻辞是「甘临，无攸利。既忧之，无咎」。可以理解为，原来靠好说话、顺势承担或只求表面推进的方式，容易出现投入不少、结果不够扎实的问题；及时发现并调整，比继续增加工作量更重要。',
- '六四发动：爻辞「至临，无咎」，强调真正接近事务、把责任落实到位。现实里更值得观察你能否进入核心业务、掌握关键事实，而不只是处理零散执行。',
- '六五发动：爻辞「知临，大君之宜，吉」，重点在判断和统筹。后续更重要的可能是如何定方向、分责任、协调资源，而不是你一个人把所有工作做完。'
- ]:active.map(r=>'第'+(r.i+1)+'爻发动：'+r.gz+r.r+'变'+r.vgz+r.vr+'，'+(empty.includes(r.gz[1])?'本爻旬空，':'')+'代表这一位置上的关系值得继续追踪，尚不能据此确定某个月会发生何种事件。');
- const detailed=isLin?'「临」到「夬」，可将卦象理解为从逐步介入、承担管理事务，发展到必须明确规则、界限和取舍。这是一条传统象义上的变化线索，不是对晋升、离职的保证。': '本卦「'+a.name+'」到变卦「'+b.name+'」，反映所问事项存在变化。要判断发展方向，仍应以世爻、用神、动爻组合为主，不能只靠卦名推测职位变化。';
- const emptyDetail=rows.filter(r=>moves[r.i]&&r.empty).map(r=>position[r.i]+' '+r.gz+r.r).join('、');
- const branchDetails=active.map(r=>{
-  const oldEl=zEl[r.gz[1]],newEl=zEl[r.vgz[1]];
-  const logic=sheng[newEl]===oldEl?'回头生':ke[newEl]===oldEl?'回头克':sheng[oldEl]===newEl?'动爻生变爻':ke[oldEl]===newEl?'动爻克变爻':'同五行';
-  return position[r.i]+' '+r.gz+r.r+' → '+r.vgz+r.vr+'（'+logic+'）';
- }).join('；');
- const factors= isLin?'世爻官鬼卯木临二爻，月戌与卯合、日申金克卯，不能简单把「合」算成一分好事、「克」算成一分坏事；需结合合绊、旺衰和三处动爻。应爻亥水妻财发动并非一条静止的“外部支持”线，且三、四爻丑土兄弟同时发动又逢旬空，要警惕责任、资源或竞争关系尚未落定。':'世爻'+world.gz+world.r+'，月建作用是'+influence(month,world.gz[1])+'、日辰作用是'+influence(day,world.gz[1])+'；应爻'+respond.gz+respond.r+'。关键爻变化为：'+branchDetails+'。';
- const finalText=isLin?'传统象义更偏向：未来一段时间，工作重点从接手和推进事务，转向责任界定、统筹判断与明确取舍。可以把它当作观察方向，但卦盘尚不足以推断具体升职、离职或收入变化。':'就卦盘已核实的关系，只能判断工作中存在变化因素，尚不足以把变化具体归结为升职、换岗、离职或薪酬变化。';
- const stages=isLin?[
- '前段（起卦后约第1个月）：对照六三，检查哪些工作做了很多却没有改善核心结果，明确是否存在反复返工或责任模糊。',
- '中段（约第2个月）：对照六四，重点观察是否进入更核心的项目环节，以及是否获得相应的协调权限。',
- '后段（约第3个月）：对照六五及夬卦，重点观察是否出现需要你明确取舍、分配责任或决定继续投入范围的局面。'
- ]:['前段：观察目前工作职责与协作边界是否变化。','中段：观察动爻对应的资源或人际关系是否得到落实。','后段：根据实际反馈决定继续、调整还是退出相关投入。'];
- return `<div class="focus-report"><div class="section-title">未来工作走向 · 结合本卦与三处动爻</div>
- <p><strong>直接回答：</strong>${finalText}</p>
- <p><strong>本卦与变卦：</strong>${detailed}</p>
- <p><strong>三钱六摇：</strong>六爻从下往上依次为${totals.join('、')}；${moving.length}爻发动（${moving.join('、')}爻）。钱面负责确定卦形与动爻，不是单独的好运坏运计分。</p>
- <p><strong>动爻逐条解释：</strong>${parts.map((x,i)=>'<br>'+(i+1)+'．'+x).join('')}</p>
- <p><strong>纳甲装卦的关键证据：</strong>${factors} ${emptyDetail?'其中'+emptyDetail+'逢旬空；旬空的影响还需综合出空、冲空以及动变条件，不能直接解释成“完全不会发生”。':''}</p>
- <p><strong>三个月怎么观察：</strong><br>${stages.join('<br>')}以上是为了便于用户落实而划分的观察阶段，不是卦象精准推出这些日期必然发生对应事件。</p>
- <p><strong>现实里最需要防范：</strong>工作责任扩大却没有同步取得权限、人员、预算或明确的成果归属；如果推进效率没有改善，应及时调整方式，而不是单纯加班补位。</p>
- <p class="verdict"><strong>最终结论：</strong>${finalText} 如果近期确实出现职责扩大、跨部门协作或决策要求提高的情况，建议先明确权责及成果评价，再决定是否继续增加投入。</p>
- <p class="sub">以上以纳甲世应、六亲、日月、动变为主要依据；「临」「夬」及爻辞只作传统象义辅助，不把爻辞等同于纳甲生克。伏神、多动爻连环作用及旺衰细则仍需进一步校核。本解读仅供传统文化体验，不能预测具体职业事件。</p></div>`;
-})();
-const refusal=refuseQuestion?respondToRefusal():null;
-if(!workTrend)insight+=projectDetail;
-if(!workTrend)insight+=deepReport;
-// 最终结论：综合六摇、卦象、装卦和解读，先回答原问题，再给证据链与行动。
-const movingPositions=active.map(r=>position[r.i]).join('、')||'无';
-const coinDescription=totals.map((v,i)=>position[i]+' '+v+({6:'（老阴，变阳）',7:'（少阳，不变）',8:'（少阴，不变）',9:'（老阳，变阴）'}[v])).join('；');
-const significant=active.map(r=>{
- const oldEl=zEl[r.gz[1]],newEl=zEl[r.vgz[1]];
- const back=sheng[newEl]===oldEl?'回头生':ke[newEl]===oldEl?'回头克':sheng[oldEl]===newEl?'动爻生变爻':ke[oldEl]===newEl?'动爻克变爻':'同五行';
- return position[r.i]+'的'+r.gz+r.r+'发动，变为'+r.vgz+r.vr+'（'+back+(empty.includes(r.vgz[1])?'、变爻逢空':'')+'）';
-}).join('；')||'没有动爻，不能将静卦硬解释为某个事件必然发生';
-const worldStrength='世爻'+world.gz+world.r+'，月建对它'+influence(month,world.gz[1])+'、日辰对它'+influence(day,world.gz[1])+(world.empty?'，世爻还逢空':'，世爻不落旬空');
-const useStrength=primary?'用神'+primary.gz+primary.r+'（'+position[primary.i]+'）受月建'+influence(month,primary.gz[1])+'、日辰'+influence(day,primary.gz[1])+(primary.empty?'，但它逢空':'，且不逢空'):'本卦未见明确用神，伏神尚待核验';
-const relationMessage=ally?'应爻生世，有外部支持的象':obstacle?'应爻克世，外部环境有施压的象':'世应没有直接的生扶或相克关系，不能据此断言对方一定支持或阻挠';
-const practical={career:'岗位或项目的考核口径、实际负责人、投入时间、决策权、执行支持以及你能获得的薪酬和项目成绩',money:'投入金额、最坏损失、收益计算方式、回款周期以及付款保障',relationship:'双方是否愿意沟通、实际付出是否对等、关系中的边界和长期预期',friends:'合作分工、利益分配、违约退出方式和沟通成本',house:'合同条款、费用、房屋或标的实际情况、付款及交付时间',children:'实际生活条件、照护资源、家庭安排和对当事人的影响',health:'客观症状、检查结果、是否需要及时就医'}[k]||'现实条件、投入成本以及后续兑现方式';
-let directionText=refusal?refusal.lead:headline;
-if(acceptProject){
- directionText=tendency==='偏有利'?'按已完成的基础装卦规则，接手这件事有可利用的条件，但更像是需要持续承担责任、逐步做出成果的过程；不适合解读成“接了就一定赚、一定轻松”。':tendency==='偏不利'?'按已完成的基础装卦规则，承接后可能遇到较明显的推进压力；在责任、资源与回报没有说清楚以前，不建议直接答应。':'按已完成的基础装卦规则，接手后既存在推进空间，也有阻力；比起马上全盘答应，更适合先谈清责任边界与支持条件。';
-}
-const recommendation=refusal?refusal.action:acceptProject?'建议先把具体门店数量、各店执行负责人、项目期限、你能调动的资源、出问题时谁协调以及最终回报写清楚。条件能落地再接；如果只有结果要求却不给执行权和配套资源，就应该重新谈范围或拒绝。':action;
-const resultClass=tendency==='偏有利'?'偏向有利':tendency==='偏不利'?'阻力偏大':tendency==='信息不足'?'暂不能可靠定向':'利弊并存';
-if(!workTrend)insight+=`<div class="focus-report"><div class="section-title">结论与建议 · 完整综合断语</div>
-<p><strong>你问的是：</strong>${escapeHTML(question)}</p>
-<p><strong>先说卦里的倾向：</strong>${directionText}</p>
-<p><strong>一、为什么会得到这个判断？</strong>这次三钱六摇从初爻到上爻依次是：${coinDescription}。其中${movingPositions}发动，所以本卦「${a.name}」变为「${b.name}」。六次钱面决定的是卦形以及哪里发生变化，本身并不代表六项独立的吉凶分数。判断后续趋势，要重点看发动的爻改变了哪一类关系。</p>
-<p><strong>二、本卦和变卦在说什么？</strong>本卦「${a.name}」描述事情起步时的整体局面，变卦「${b.name}」可作为变化方向的辅助参考。仅凭卦名不能断定成功或失败，所以要接着核对纳甲卦盘：${a.palace}宫、五行${a.home}，${stages[a.idx]}，世在${position[a.shi-1]}、应在${position[a.ying-1]}。</p>
-<p><strong>三、你和外部条件各是什么状态？</strong>${worldStrength}；应爻是${respond.gz}${respond.r}。${relationMessage}。如果这件事由你来承担，世爻更接近你的处境，应爻更接近对方或者外部环境。对你有帮助的“生”只能说明传统五行关系上的支持倾向，不能代替现实中对方真的提供了资源。</p>
-<p><strong>四、决定结果的关键点在哪里？</strong>${useStrength}。本卦发动情况是：${significant}。还需要注意旬空为${empty.join('')}：${rows.filter(r=>r.empty).length?rows.filter(r=>r.empty).map(r=>position[r.i]+'的'+r.gz).join('、')+'落空。':'本卦现有六爻不逢旬空。'} 这些关系合起来，才能解释“为什么看见机会”“为什么存在阻力”以及“有哪些条件尚未落实”，不能只统计生扶数量就简单给出吉凶。</p>
-<p><strong>五、对你最可能意味着什么？</strong>${refusal?'你问的是拒绝之后的后果，不能把“接手这一方案存在机会”直接反过来推成“不接就一定吃亏”。重点区分少承担的义务、可能放弃的收益，以及对方实际会作出的反应。':acceptProject?'对你来说，最重要的是区分“项目可能推进”和“你本人值得承担”。责任压力、跨门店协调、项目成果归属与回报兑现需要分开核算；即使项目做出了进展，也不等于收入或职业认可必然同步增加。':'卦象能帮助梳理传统意义上的助力、阻力和变化位置，但无法直接证明具体的人会怎么做，也无法保证特定收益或时间。'}</p>
-<p><strong>六、把结论变成行动：</strong>${recommendation} 实际决定前至少核对${practical}；不要把卦象所示的“有利”当成没有风险。</p>
-<p class="verdict"><strong>最终结论：</strong>${resultClass}。就这次所问而言，${directionText} ${refusal?'如果决定不接，关键是退出或拒绝方式是否清楚，并非卦里能断定会遭受什么报复。':acceptProject?'建议采取“条件明确再承接”的方式，而不是无条件接手。':recommendation}</p>
-<p class="sub">依据范围：当前程序已实现的八宫、纳甲、六亲、世应、日月与基础动变规则；伏神、复杂动变生克、进退神等尚未完整校验。这里提供的是传统术数视角下的初步推演，不是可验证的未来事实或替代现实决策的依据。</p></div>`;
-
-if(workTrend) insight+=trajectoryWork;
+const k=choice(question,$('kind').value),world=rows[a.shi-1],respond=rows[a.ying-1],month=t.month[1],day=t.day[1];
 const engineInput={question,t,throwing,totals,bits,moves,changed,a,b,rows,empty,k,world,respond,month,day};
-const out=window.YiYaoEngineV4?.interpret(engineInput);
-if(!out||!out.html)throw Error(out?.error||'专业解读模块尚未加载，请刷新后重试');
-$('reading').innerHTML=out.html;$('output').classList.add('show');$('output').scrollIntoView({behavior:'smooth',block:'start'});window.lastReading={question,t,throwing,html:$('output').innerText};
+const out=window.YiYaoEngineV4.interpret(engineInput);
+if(!out||!out.html)throw Error('解卦引擎没有返回结果');
+$('reading').innerHTML=out.html;
+$('output').classList.add('show');
+$('output').scrollIntoView({behavior:'smooth',block:'start'});
+window.lastReading={question,t,throwing,html:$('output').innerText};
 }catch(e){$('error').textContent=e.message||'排盘失败，请检查输入后重试。';console.error('易爻起卦失败',e);}finally{btn.disabled=false;btn.textContent='起卦 · 见其所象';}}
 document.querySelectorAll('input[name="method"]').forEach(x=>x.addEventListener('change',()=>{$('manualBox').style.display=x.value==='manual'&&x.checked?'block':'none'}));$('cast').onclick=cast;$('again').onclick=()=>{window.scrollTo({top:0,behavior:'smooth'})};$('copy').onclick=async()=>{if(!window.lastReading)return;try{await navigator.clipboard.writeText(window.lastReading.html);$('copy').textContent='已复制'}catch(e){$('copy').textContent='复制失败，请手动选择文本'}};
 </script></body></html>

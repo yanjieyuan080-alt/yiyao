@@ -222,8 +222,11 @@ function humanize(c,i,use,j,verified){
     const formation=hasEmerging?"卦里有从任务安排变化到工作机会的传统象义线索，说明可以关注有没有人来谈兼职。":"目前缺少直接指向新兼职的变化线索。";
     const obstacle=hasClash?"不过也有承接条件不稳的象义，":"";
     const startObstacle=c.b.name.includes("屯")?"变卦「屯」也有事情刚起步、推进不易的传统含义。":"";
-    lead="看"+time+(hasEmerging?"有出现兼职接洽或邀约的传统线索，但不能确定会真正接到兼职。":"目前不能判断会不会有新兼职找上门。")+
-      obstacle+startObstacle+"尤其不能把有人联系等同于已经敲定工作和报酬。";
+    lead=hasEmerging?
+      "按这卦的传统象义，"+time+"可能有人来找你谈兼职，但一个月内能不能谈成、真正开始做，还看不稳。"+
+       (hasClash?"你这边的承接条件也有变化或阻力的象义。":"")+
+       startObstacle+"有机会来聊，不等于活已经确定。":
+      "按这卦目前能核对的传统规则，"+time+"还看不出足够明确的新兼职线索，不能因此断定一定有或一定没有。";
     // 与模板化“工作发展较有利”不同，区分接洽、确认、开工、到账四个阶段。
     if(hasEmerging)j.opportunity_stage="contact_possible_unconfirmed";
     j.reading_basis=formation;
@@ -238,9 +241,9 @@ function humanize(c,i,use,j,verified){
   if(x.id==="health_boundary")return "卦象没有医学判断能力，不能靠它推测病情。";
   if(x.id==="unverified_goal_direction")return "这类问题的好坏方向不能照搬普通求成问题的规则，相关的专业判断还没有验证完成。";
   if(x.id==="multi_motion")return "这张卦同时有多处变化，程序还没有完成它们相互作用的判断，不能按变化数量定结果。";
-  if(x.id.startsWith("emerging_job_"))return "有一爻从安排或沟通事务转为工作相关的象义，说明有值得留意的接洽线索；但这还不是已确定的兼职。";
+  if(x.id.startsWith("emerging_job_"))return "有一条动爻从沟通、安排一类事务转成工作相关的象义，像是先有人来接洽，再谈具体兼职，并不表示已经拿到了工作。";
   if(x.id.startsWith("emerging_support_"))return "这次变化有相互支持的传统线索，可作为机会推进的辅助依据。";
-  if(x.id==="self_month_clash")return "代表你自身的一爻受到当月干支冲动，承接时间和实际条件可能仍需要协调。";
+  if(x.id==="self_month_clash")return "代表你本人处境的爻受到当月冲动，传统上提示时间、安排等承接条件还可能有变数。";
   if(x.id==="earnings_not_moving")return "涉及报酬的爻没有发动，不能从有人联系就推断兼职已经成交。";
   if(x.id==="primary_void")return "与这件事直接相关的一爻出现了“旬空”，在传统说法中意味着某些条件还要继续核实。";
   if(x.id==="back_control")return "关键一爻变化后，反而形成制约，这是需要注意的传统阻力信号。";

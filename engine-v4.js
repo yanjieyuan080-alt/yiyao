@@ -59,13 +59,13 @@ career:["官鬼","父母","妻财"],exam:["父母","官鬼"],legal:["官鬼","�
 const selected=c.rows.filter(r=>relevant.includes(r.r));
 const facts=[];
 const record=(title,evidence,rule,meaning)=>facts.push({title,evidence,rule,meaning});
-record("自己的处境",self.gz+self.r+"持世，月建"+c.month+"对其"+getRelation(c.month,self.gz[1])+"，日辰"+c.day+"对其"+getRelation(c.day,self.gz[1]),"世爻与日月共同考量；冲合不机械视作吉凶","此事对你本人是否有利，不能只用项目整体是否有利替代。");
+record("自己的处境",self.gz+self.r+"持世；月建："+directional(self.gz,c.month)+"；日辰："+directional(self.gz,c.day),"世爻与日月共同考量；冲合不机械视作吉凶","此事对你本人是否有利，不能只用项目整体是否有利替代。");
 record("对方及环境",other.gz+other.r+"临应，五行方向："+(function(){const aa=five[self.gz[1]],bb=five[other.gz[1]];return aa===bb?"同气":sheng[aa]===bb?"世生应":sheng[bb]===aa?"应生世":ke[aa]===bb?"世克应":"应克世";})(),"应爻须结合动静、旺衰及生克","对方真实态度、支持是否兑现，不能从单一生世关系确认。");
 record("所问关键爻",selected.map(r=>N[r.i]+"爻"+r.gz+r.r+(r.empty?"（旬空）":"")).join("；")||"显性用神不现","根据领域兼看多个六亲；伏神未见须另行确认","取用是分析线索，不能把“相关六亲”都当同一主用神。");
 moved.forEach(r=>{const o=five[r.gz[1]],n=five[r.vgz[1]];const back=sheng[n]===o?"回头生":ke[n]===o?"回头克":sheng[o]===n?"动生变":ke[o]===n?"动克变":"比和";const progress=advance[r.gz[1]]===r.vgz[1]?"进神":advance[r.vgz[1]]===r.gz[1]?"退神":"不构成进退神";record(N[r.i]+"爻动变",r.gz+r.r+" → "+r.vgz+r.vr+"；"+back+"；"+progress+"；"+(r.empty?"本爻旬空；":"")+(c.empty.includes(r.vgz[1])?"变爻旬空；":""), "回头生克取变爻五行作用于本动爻；进退神使用四长生与土支序列规则","变化的推动与反馈需与世、应、用神结合，不可将爻辞视作发生过的现实事件。");});
 if(moved.length>1)record("多爻联动",moved.map(r=>N[r.i]+r.gz).join("、"),"多动爻并看，空亡动爻和非空动爻不能简单同权累加","这张卦有多处同时变化，不能给每条爻分配一个月份。");
 const lineTexts=moved.map(r=>({position:r.i+1,text:v.origin.lines[r.i]}));
-const directional=(a,b)=>{const ael=five[a.slice(-1)],bel=five[b.slice(-1)];if(ael===bel)return a+"与"+b+"同五行";if(sheng[ael]===bel)return a+"生"+b+"（"+a+"向"+b+"泄气；"+b+"受生）";if(sheng[bel]===ael)return b+"生"+a+"（"+a+"受"+b+"生扶）";if(ke[ael]===bel)return a+"克"+b+"（"+b+"受制）";if(ke[bel]===ael)return b+"克"+a+"（"+a+"受制）";return "无直接关系";};
+function directional(a,b){const ael=five[a.slice(-1)],bel=five[b.slice(-1)];if(ael===bel)return a+"与"+b+"同五行";if(sheng[ael]===bel)return a+"生"+b+"（"+a+"向"+b+"泄气；"+b+"受生）";if(sheng[bel]===ael)return b+"生"+a+"（"+a+"受"+b+"生扶）";if(ke[ael]===bel)return a+"克"+b+"（"+b+"受制）";if(ke[bel]===ael)return b+"克"+a+"（"+a+"受制）";return "无直接关系";}
 record("世爻与日辰的明确方向",directional(self.gz,c.day),"明确标示生克的施受方向，不以“耗”等模糊字样代替","这说明哪一方付出、哪一方受制，但不能直接推导具体事件。");
 record("世爻与应爻的明确方向",directional(self.gz,other.gz),"世应五行须标记主动与被动","不将世克应误称为应克世。");
 const domain=intent.field,goal=intent.intent;

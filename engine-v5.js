@@ -31,7 +31,19 @@ function question(q,requestedDomain){
  const demotion=/(降职|降级|被贬|下调职级|被撤职|免职)/.test(cleaned);
  const official=/(正式任命|职位任命|职务任命|被任命为|得到任命)/.test(cleaned);
  const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":base.object?.subtype||"general";
- let field=(promotion||demotion||official)?"career":base.field;
+ const recognize=[
+  ["health",/健康|身体|症状|生病|疾病|病情|手术|康复|怀孕|胎儿/],
+  ["legal",/官司|法院|起诉|诉讼|仲裁|法律纠纷|判决/],
+  ["exam",/考试|考研|考公|录取|考证|面试|资格证/],
+  ["property",/房子|买房|卖房|租房|搬家|房屋|房产|合同|协议|签约/],
+  ["finance",/工资|财运|收入|回款|资金|盈利|利润|欠款|还款|投资|钱|赚钱|储值/],
+  ["relationship",/男朋友|女朋友|恋爱|复合|婚姻|结婚|分手|感情|伴侣|前任/],
+  ["cooperation",/合作|合伙|搭档|伙伴|团队协作|共同经营|利益分配|竞争/],
+  ["children",/孩子|子女|亲子|兴趣|休养|休闲|创作/],
+  ["career",/工作|项目|职位|岗位|事业|职业|升职|降职|任命|领导|公司|门店|上班/]
+ ];
+ const detected=recognize.find(([,reg])=>reg.test(cleaned))?.[0];
+ let field=(promotion||demotion||official)?"career":detected||base.field||"general";
  if(!field){field=/(项目|岗位|职位|职场|升职|降职|任命)/.test(cleaned)?"career":null;}
  const manual={money:"finance",house:"property",friends:"cooperation",career:"career",relationship:"relationship",children:"children",health:"health"};
  if(!promotion&&!demotion&&!official&&requestedDomain&&requestedDomain!=="auto"&&manual[requestedDomain])field=manual[requestedDomain];

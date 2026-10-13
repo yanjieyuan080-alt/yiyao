@@ -8,6 +8,18 @@ const SHENG={木:"火",火:"土",土:"金",金:"水",水:"木"}, KE={木:"土",�
 const THEMES={
 乾:"主动进取，但需把握节奏",坤:"承载配合，重在积累",屯:"起步艰难，宜先整理条件",蒙:"信息未明，先求理解",需:"等待时机，准备条件",讼:"意见分歧，避免争执升级",师:"组织纪律与团队行动",比:"结盟协作、择人而近",小畜:"小幅积累、条件尚待成熟",履:"谨慎行事、尊重边界",泰:"交流通畅、阶段相对顺遂",否:"上下不通、推进受阻",同人:"重视共同目标与协作",大有:"资源较丰、注意合理运用",谦:"克制审慎、以退为进",豫:"积极筹划、警惕松懈",随:"顺应变化、保持原则",蛊:"纠正积弊、处理旧问题",临:"接近事务、承担管理责任",观:"观察全局、审视现状",噬嗑:"处理阻碍、明确规则",贲:"注重呈现，也要看实质",剥:"基础被削弱、宜守住根本",复:"回到正轨、逐步恢复",无妄:"守正行事、不妄动",大畜:"蓄积能力和资源",颐:"滋养与资源供给，注意长期维持",大过:"负担偏重、结构需要调整",坎:"险阻反复、需要谨慎",离:"明辨依附、厘清重点",咸:"感应互动、关系牵引",恒:"持续经营、贵在有恒",遁:"审时退避、保留余地",大壮:"力量增长、忌冒进",晋:"逐渐向前、争取认可",明夷:"光明受抑、宜保护实力",家人:"内部角色与秩序",睽:"分歧各异、求同存异",蹇:"前行受阻、宜借助协作",解:"阻碍舒缓、及时解结",损:"减少消耗、有所取舍",益:"增益资源、把握受益条件",夬:"公开决断、明确取舍",姤:"突遇机会、注意边界",萃:"聚集资源、组织协调",升:"循序渐进、积累向上",困:"资源受限、在压力中寻找出路",井:"长期供给与基础建设",革:"改革旧制、改变方法",鼎:"更新秩序、形成新结构",震:"突发变化、先稳住节奏",艮:"适时止步、厘清边界",渐:"循序推进、逐步形成结果",归妹:"角色与关系安排需合宜",丰:"事项繁盛、注意盛极转变",旅:"处于过渡、保持灵活",巽:"循序渗透、借助沟通",兑:"交流协商、留意言语",涣:"疏解阻隔、重新聚合",节:"节制资源、建立规则",中孚:"互信诚信、兑现承诺",小过:"宜做小范围推进、忌求大成",既济:"阶段完成后仍需维护",未济:"尚未完成、仍待协调"
 };
+
+function themeOf(fullName){
+ const key=fullName.includes("为")?fullName[0]:fullName.slice(2);
+ return THEMES[key]||"需参考卦辞和具体爻位";
+}
+const LINE_GLOSSES={
+ "水山蹇":{4:"往蹇来连：前行受阻时，更重视回到协作与相互连接",5:"大蹇朋来：面对较大的困难，可以寻求伙伴与资源支持"},
+ "地泽临":{3:"甘临：只凭表面顺利不一定有利，意识到问题并调整可避过失",4:"至临：深入事务、切实履行责任",5:"知临：以判断与协调承担管理责任"},
+ "山火贲":{4:"贲如皤如：合作中的疑虑与误解需要辨明",5:"贲于丘园：重视朴实的实际投入"},
+ "天火同人":{4:"乘其墉，弗克攻：遇到矛盾时不宜一味强攻",6:"同人于郊：保持适当距离与合作边界"},
+ "雷风恒":{4:"田无禽：投入若方向不合适，努力可能难获预期回报"}
+};
 const CONTEXT={
 career:{label:"事业与项目",topic:"职责、项目安排与职业方向",roles:{"官鬼":"职位、工作责任与考核","父母":"任务、制度、文书及工作安排","妻财":"报酬与资源兑现","兄弟":"同事、竞争和协作","子孙":"缓解压力、执行产出"},primary:["官鬼","父母"],risk:"核实任务责任、决策权限和执行资源是否同步匹配"},
 finance:{label:"收入与财务",topic:"财务机会与资金兑现",roles:{"妻财":"收入与款项","子孙":"生财来源或业务产出","兄弟":"竞争与资源消耗","父母":"合同与支付凭证","官鬼":"风险和约束"},primary:["妻财","子孙"],risk:"核对真实支付条件、现金流与成本"},
@@ -82,7 +94,7 @@ function collect(c,base){
 }
 function summarize(c,base,info){
  const {self,moved,relevant,signals,config,si}=info,intent=base.intent;
- const old=c.a.name,changed=c.b.name,theme=THEMES[old]||"需参考卦辞和具体爻位",toTheme=THEMES[changed]||"新的变化仍需结合实际条件";
+ const old=c.a.name,changed=c.b.name,theme=themeOf(old),toTheme=themeOf(changed);
  const state=moved.length?"从「"+old+"」（"+theme+"）转向「"+changed+"」（"+toTheme+"）":"本卦「"+old+"」六爻安静，传统象义侧重"+theme;
  const key=signals.filter(s=>["self_move","moving","static","void"].includes(s.kind)).slice(0,3);
  const main=key.map(s=>s.meaning).join("；");
@@ -107,6 +119,7 @@ function summarize(c,base,info){
  const fixed="这是按传统纳甲与《周易》象义作出的条件性解释，不构成对未来事件的可靠预测。";
  const highlight=signals.filter(s=>["self_move","moving"].includes(s.kind)).slice(0,2).map(s=>s.fact+"："+s.meaning).join("；");
  const aux=base.lineTexts.map(t=>position(t.position-1)+"「"+t.text+"」").join("；");
+ const gloss=base.lineTexts.map(t=>LINE_GLOSSES[old]?.[t.position]).filter(Boolean).join("；");
  const paragraph=highlight?highlight+"。":moved.length?"本卦有动爻，但需要核对其与世爻及具体用神的联系。":"静卦无直接动爻线索，不能据此断言机会或变化必定没有。";
  const answer=opening+(paragraph? "\n"+paragraph:"")+"\n"+(aux?"动爻爻辞："+aux+"。":"")+"现实上建议："+config.risk+"。";
  return {answer,state,evidence,heading:opening,conclusion:opening,limit:fixed};

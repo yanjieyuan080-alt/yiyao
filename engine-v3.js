@@ -22,13 +22,13 @@ const intentions=[
 ["timing",/什么时候|何时|几号|多久|多长时间|什么时候能|多久能/],
 ["trend",/发展|走向|趋势|未来|接下来|后续|三个月|半年|一年|会怎样变化/],
 ["impact",/对我有什么影响|对我|影响|后果|代价|收获/],
-["result",/能否|会不会|可以吗|是否|结果|有没有机会|能不能|顺利|成功|通过/],
+["result",/能否|会不会|可以吗|是否|结果|有没有机会|能不能|顺利|成功|通过|适不适合|值得信任/],
 ["why",/为什么|原因|哪里出了问题|为何/],
 ["improve",/怎么做|如何改善|怎么解决|怎么办/]];
 function identify(question){
 const q=String(question||"").trim();
 if(!q)return {ok:false,error:"请先写出一个具体的问题。"};
-let field=topics.find(([k,re])=>re.test(q))?.[0];
+let field=/(整体发展|整体趋势|整体运势)/.test(q)&&!/工作|职业|事业|岗位|项目/.test(q)?"general":topics.find(([k,re])=>re.test(q))?.[0];
 if(!field){
 if(/整体|运势|近况|人生|个人/.test(q))field="general";
 else return {ok:false,error:"暂时无法确认所问领域。请补充具体对象，例如“当前这份工作未来三个月的发展”或“某笔货款何时到账”。"};
@@ -97,6 +97,8 @@ if(i.intent==="refuse")answer="你问的是不做的后果，不能把“适合�
 if(i.intent==="compare")answer="问题涉及多个备选对象，但尚未提供确定的各对象对应爻位规则，因此不能根据本卦给出A与B的可靠排序。";
 if(i.intent==="leave")answer="你问的是去留选择，不能直接套用新工作是否值得尝试的模板。"+ctext.trend;
 if(i.intent==="result")answer=ctext.result;
+if(/适不适合|该不该|值得不值得/.test(question)&&i.intent==="result")answer="你问的是是否值得做，不是简单的成败问题。"+ctext.risk+" "+ctext.action;
+if(/信任|靠谱吗|可靠吗/.test(question))answer="传统卦盘不能核实一个人的诚实程度或主观意图。"+ctext.risk+" "+ctext.action;
 if(i.intent==="impact")answer=ctext.trend+" "+ctext.result;
 if(i.intent==="why")answer="需要先看用神与世应的受制位置。"+ctext.trend;
 if(i.intent==="improve")answer=ctext.action;

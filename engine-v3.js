@@ -35,7 +35,7 @@ else return {ok:false,error:"暂时无法确认所问领域。请补充具体对
 }
 const found=intentions.filter(([k,re])=>re.test(q)).map(x=>x[0]);
 const primary=found.find(x=>x!=="impact")||"result";
-const t=q.match(/(?:未来|接下来|今后|后续|近)(?:的)?(\d+|一|两|三|六|十|半)(个)?(天|周|月|年)/);
+const t=q.match(/(?:未来|接下来|今后|后续|近)(?:的)?([0-9]+|[零〇一二两三四五六七八九十百半]+)(?:个)?(天|周|月|年)/);
 return {ok:true,field,fieldName:names[field]||"整体事务",intent:primary,intents:[...new Set(found.length?found:[primary])],window:t?t[0]:"未明确时间范围",question:q};
 }
 const sheng={木:"火",火:"土",土:"金",金:"水",水:"木"};

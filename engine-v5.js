@@ -213,7 +213,8 @@ function evaluate(c,i,use){
  const strongUnresolved=unresolved.some(x=>["no_visible_primary","multiple_primary","health_boundary","unverified_goal_direction"].includes(x.id));
  let status="insufficient_evidence";
  if(!strongUnresolved&&used){
-  if(conflict)status="mixed_signals";
+  if(newCareerOpportunity&&contactSignals.length&&timingBlockers.length&&!negative.length)status="opportunity_unsettled";
+  else if(conflict)status="mixed_signals";
   else if(negative.length)status="restraining_signals";
   else if(positive.length)status="favorable_signals";
  }
@@ -235,6 +236,7 @@ function humanize(c,i,use,j,verified){
   favorable_signals:"按已核对的部分传统规则，"+scope+"有一些有利线索，但现实结果还不能凭这一卦确定。",
   restraining_signals:"目前看到的传统线索里，"+scope+"有一些明显阻力，但不等于一定失败。",
   mixed_signals:"与"+scope+"有关的线索有支持也有阻碍，这次还看不出明确方向。",
+  opportunity_unsettled:"卦里有"+scope+"的变化象义，但能不能落实还有关键条件没有弄清楚。",
   insufficient_evidence:"这张卦关于"+scope+"的关键信息不够，暂时不能判断会不会发生。"
  }[j.status];
  let lead=verdict;
@@ -260,31 +262,38 @@ function humanize(c,i,use,j,verified){
     const selfAdvance=j.supporting_factors.some(x=>x.id==="self_advance");
     const selfChangeClash=j.unresolved_factors.some(x=>x.id==="self_change_month_clash");
     const hasClash=j.restricting_factors.some(x=>x.id==="self_month_clash");
-    const time=i.window!=="未明确时间范围"?i.window+"里，":"接下来，";
-    const starter=hasEmerging?
-      "这卦有从沟通安排转向工作机会的传统象义，可能会出现兼职接洽，但能不能谈成还不好确定。":
-      activeOffice?
-      "工作相关的爻直接发动，传统上可以理解为兼职机会有动静，但还不能说明一定会有人来找你。":
-      "现在没有足够明确的动爻依据支持新兼职机会一定出现。";
-    const conditions=[
-       paperworkVoid?"工作相关爻变为安排类爻，但变爻逢空，像是条件还没有落实。":"",
-       selfVoid?"代表你自身的一爻也在动且旬空，承接条件仍有变数。":"",
-       selfAdvance?"世爻化进神，在常见规则中有逐步推进的象义。":"",
-       selfChangeClash?"但世爻变爻与月建相冲，不能把进神直接当成已经谈成。":"",
-       hasClash?"世爻受月冲，时间或承接安排可能需要协调。":""
-    ].filter(Boolean);
-    const originLines=verified.origin.lines.filter((t,index)=>[6,9].includes(c.totals[index]));
-    const delays=originLines.some(t=>/愆期|迟归|未至|迟|待/.test(t));
-    const timing=delays?"动爻原文还有等待、延期的象义，尤其不宜断定在限定时间内就能落实。":
-      c.b.name.includes("屯")?"变卦「屯」有开始阶段不顺、需要磨合的传统象义。":"";
-    lead="看"+time+starter+
-      (conditions.length?" "+conditions.slice(0,3).join(" "):"")+
-      (timing?" "+timing:"")+
-      "简单说，卦里有动静也不代表兼职已签好、开始做或拿到钱。";
+    const span=i.window!=="未明确时间范围"?i.window:"接下来";
+    const originalLines=verified.origin.lines;
+    const delayed=c.rows.some(r=>[6,9].includes(c.totals[r.i])&&/愆期|迟归|延期|未至|有待/.test(originalLines[r.i]));
+    const lineExample=c.rows.find(r=>[6,9].includes(c.totals[r.i])&&/愆期|迟归|延期|未至|有待/.test(originalLines[r.i]));
+    if(activeOffice){
+      lead="按这张卦的传统象义，"+span+"有兼职相关的变化线索，但能否真正谈成、开工还看不稳。"+
+        (paperworkVoid?"工作相关的动爻转向安排事项，但变爻逢空，暂不能当作工作已经确定。":"")+
+        (delayed?"动爻原文也有等待、延期之意，不支持断定期限内必能落地。":"");
+    }else if(hasEmerging){
+      lead="按这张卦的传统象义，"+span+"可能出现兼职接洽，但能不能谈成、真正开始做还不好确定。"+
+        (hasClash?"你这边的承接时间或条件也可能需要协调。":"")+
+        (c.b.name.includes("屯")?"变卦「屯」有刚起步、推进不易的传统象义。":"");
+    }else{
+      lead="从这张卦目前能核对的传统规则看，"+span+"还缺少明确的新兼职变化依据；不能据此认定一个月里必有或必无兼职。";
+    }
+    if(activeOffice){
+      const office=c.rows.find(r=>j.supporting_factors.some(x=>x.id==="active_office_"+r.i));
+      const officer=office?POS[office.i]+"爻"+office.gz+office.r:"工作相关爻";
+      const reasons=[officer+"发动，卦里并非没有工作机会的变化线索；但发动不等于兼职已到手。"];
+      if(paperworkVoid)reasons.push("工作相关的一爻变为安排、文书一类的象义，但对应变爻旬空，不能当作已经敲定。");
+      if(selfVoid||selfAdvance||selfChangeClash){
+         reasons.push("你本人对应的爻"+(selfVoid?"旬空且发动":"发生变化")+
+           (selfAdvance?"，化进神有逐步推进的象义":"")+
+           (selfChangeClash?"，但变爻又与月建相冲":"")+"，因此仍需看条件能否落实。");
+      }
+      if(delayed&&lineExample)reasons.push("动爻原文「"+originalLines[lineExample.i]+"」，传统上有延迟、等待的意味，不是一个月内必然成功的日期判断。");
+      why=reasons.slice(0,3);
+    }
     if(hasEmerging||activeOffice)j.opportunity_stage=(paperworkVoid||selfVoid||selfChangeClash||hasClash)?"movement_with_unsettled_conditions":"movement_unconfirmed";
-    j.reading_basis=starter;
+    j.reading_basis=activeOffice?"工作爻直接发动":hasEmerging?"父母等爻动化工作相关爻":"未见足够直接的新工作动象";
  }
-  if(i.field==="health")lead="这类健康问题不能用卦象判断诊断、治疗或康复结果。可以查看传统文化象义，但具体健康问题应依据医学信息。";
+ if(i.field==="health")lead="这类健康问题不能用卦象判断诊断、治疗或康复结果。可以查看传统文化象义，但具体健康问题应依据医学信息。";
  const mainEvidence=[...j.restricting_factors,...j.supporting_factors,...j.unresolved_factors]
   .sort((a,b)=>b.priority-a.priority).slice(0,3);
  if(!mainEvidence.length)mainEvidence.push(...j.contextual_factors.slice(0,2));
@@ -334,7 +343,7 @@ function render(c,i,use,j,h,verified){
  const movers=c.rows.filter(r=>[6,9].includes(c.totals[r.i]));
  const movedText=movers.length?movers.map(r=>POS[r.i]+"爻「"+lines[r.i]+"」").join("；"):"本次没有动爻。";
  const sub=(label,arr)=>arr.length?"<h4>"+ESC(label)+"</h4><ul>"+arr.map(x=>"<li>"+ESC(x.fact)+" — "+ESC(x.meaning)+" <small>["+ESC(x.id)+"]</small></li>").join("")+"</ul>":"";
- return '<div class="focus-report yiyan-v5" data-engine="5.1.0">'+
+ return '<div class="focus-report yiyan-v5" data-engine="5.2.0">'+
  '<div class="section-title">先说结论</div><p class="v5-lead"><strong>'+ESC(h.headline)+'</strong></p>'+
  '<div class="section-title">为什么这样说</div><ol class="v5-why">'+h.why.map(x=>"<li>"+ESC(x)+"</li>").join("")+"</ol>"+
  '<div class="section-title">接下来最值得关注什么</div>'+paragraph(h.action)+
@@ -354,7 +363,7 @@ function interpret(c){
  const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
-  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.1.0"};
+  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.2.0"};
 }
-g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.1.0"};
+g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.2.0"};
 })(window);

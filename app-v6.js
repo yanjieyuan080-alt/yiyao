@@ -118,9 +118,16 @@ const YI6=(function(){
   const p=intent(c.question,c.requestedDomain);if(!p.ok)throw Error(p.error);
   const ord=["乾","兑","离","震","巽","坎","艮","坤"];
   const key=x=>(ord.indexOf(x.outer)+1)+","+(ord.indexOf(x.inner)+1);
+  if(!Array.isArray(c.totals)||c.totals.length!==6||!Array.isArray(c.bits)||c.bits.length!==6||!Array.isArray(c.changed)||c.changed.length!==6)throw Error("六爻原始数据不完整");
+  const original=detail(c.bits),transformed=detail(c.changed);
+  if(original.name!==c.a.name||transformed.name!==c.b.name||original.palace!==c.a.palace||original.shi!==c.a.shi||original.ying!==c.a.ying)throw Error("卦名、八宫、世应与实际摇卦不一致，已停止解读");
   const a=classic[key(c.a)],b=classic[key(c.b)];
   if(!a||!b||a.name!==c.a.name||b.name!==c.b.name)throw Error("独立64卦数据库与排盘冲突，停止解读");
-  if(!c.totals.every((n,i)=>[6,7,8,9].includes(n)&&n===c.throwing[i].reduce((u,v)=>u+v,0)&&c.bits[i]===n%2&&c.changed[i]===(n===6||n===9?1-n%2:n%2)))throw Error("原始钱面与阴阳变爻不一致");
+  if(!c.totals.every((n,i)=>[6,7,8,9].includes(n)&&n===c.throwing[i].reduce((u,v)=>u+v,0)&&c.bits[i]===n%2&&c.changed[i]===(n===6||n===9?1-n%2:n%2)&&c.moves[i]===(n===6||n===9)))throw Error("原始钱面与阴阳变爻不一致");
+  const expectedEmpty=xunkong(c.t.day);
+  if(expectedEmpty.join("")!==c.empty.join(""))throw Error("旬空与日柱不符");
+  const originalRows=c.bits.map((v,i)=>{const gz=na(c.bits,i),vgz=na(c.changed,i);return {gz,vgz,r:relation(c.a.home,zEl[gz[1]]),vr:relation(c.a.home,zEl[vgz[1]])};});
+  for(let i=0;i<6;i++){const x=originalRows[i],r=c.rows[i];if(!r||r.gz!==x.gz||r.vgz!==x.vgz||r.r!==x.r||r.vr!==x.vr||r.empty!==c.empty.includes(r.gz[1]))throw Error("第"+(i+1)+"爻纳甲、六亲或旬空冲突");}
   const j=inspect(c,p),h=answer(c,p,j),moving=j.moving;
   const ed=moving.map(r=>"<p><b>"+position[r.i]+"："+esc(a.lines[r.i])+"</b><br>"+esc(j.facts.find(x=>x.id==="move"+r.i)?.label||"")+"</p>").join("");
   const html='<div class="focus-report"><div class="section-title">直接回答 · '+esc(p.domainName)+'</div><p class="v5-lead"><strong>'+esc(h.conclusion)+'</strong></p>'+

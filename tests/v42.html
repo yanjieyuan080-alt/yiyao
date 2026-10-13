@@ -74,6 +74,29 @@
   add("动爻本变同时旬空可见",big.answer.includes("本爻空、变爻空"));
   const calendar=big.signals.find(x=>x.kind==="calendar");
   add("月日作用于世爻方向明确",calendar.fact.includes("戌克亥")&&calendar.fact.includes("申生亥"),calendar.fact);
+  // 2026-10-13 16:33：地山谦→山天大畜，初、二、上三爻发动。
+  function sampleQian(){
+    const throwing=[[2,2,2],[2,2,2],[2,2,3],[2,3,3],[3,2,3],[2,2,2]],
+      totals=[6,6,7,8,8,6],bits=totals.map(n=>n%2),
+      gz=["丙辰","丙午","丙申","癸丑","癸亥","癸酉"],
+      vgz=["甲子","甲寅","甲辰","丙戌","丙子","丙寅"],
+      r=["父母","官鬼","兄弟","父母","子孙","兄弟"],
+      vr=["子孙","妻财","父母","父母","子孙","妻财"];
+    return {question:"未来五个月我的这份工作的发展会怎么样",t:{day:"庚申"},
+      throwing,totals,bits,changed:[1,1,1,0,0,1],
+      a:{name:"地山谦",palace:"兑宫",home:"金",shi:5,ying:2},
+      b:{name:"山天大畜"},
+      rows:gz.map((value,i)=>({i,gz:value,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===3})),
+      empty:["子","丑"],month:"戌",day:"申"};
+  }
+  const modest=YiYaoEngineV42.interpret(sampleQian());
+  add("谦→大畜：本变卦与初二上动爻准确",modest.verified.includes("地山谦")&&modest.verified.includes("山天大畜")&&modest.lineTexts.length===3);
+  add("谦卦：未来五个月时间范围",modest.intent.window==="未来五个月",modest.intent.window);
+  add("谦卦：初二上动爻均进入正文",modest.answer.includes("初爻")&&modest.answer.includes("二爻")&&modest.answer.includes("上爻"));
+  add("谦卦：动爻的独立象义进入直接结论",modest.answer.split("\n")[0].includes("治理自身职责范围内"));
+  add("谦卦：午亥生克受力方明确",modest.signals.some(x=>x.fact.includes("亥克午（午受克）")));
+  add("谦卦：初爻变子水旬空，四爻丑土静空",modest.signals.some(x=>x.kind==="void_change"&&x.fact.includes("初"))&&modest.signals.some(x=>x.kind==="void"&&x.fact.includes("四")));
+  add("谦卦：世爻为癸亥子孙不是官鬼",modest.answer.includes("癸亥子孙")&&!modest.answer.includes("官鬼持世"));
   const corrupt=sampleK();corrupt.a.shi=2;
   try {YiYaoEngineV42.interpret(corrupt);add("错误世应必须阻止或复核",false,"原有 V4 verify 未独立核对世应");}
   catch(e){add("错误世应必须阻止或复核",true,String(e));}

@@ -232,5 +232,5 @@ function interpret(c){
  if(info.self.r!=="兄弟"&&/兄弟持世/.test(result.answer+result.html))throw Error("结论与卦盘冲突：并非兄弟持世");
  return result;
 }
-g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,version:"4.2.3"};
+g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,themeOf,version:"4.2.3"};
 })(window);

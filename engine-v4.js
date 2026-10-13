@@ -102,5 +102,5 @@ const risks={career:"核实职责是否增加、授权是否同步、交付成�
 const html='<div class="focus-report" data-engine="4"><div class="section-title">所问问题与意图</div><p>'+esc(intent.question)+'｜'+esc(intent.fieldName)+'｜'+esc(intent.intents.join("、"))+'｜'+esc(intent.window)+'</p><div class="section-title">核心回答</div><p>'+esc(answer)+'</p><div class="section-title">独立卦象核验与卦辞</div><p>'+esc(v.origin.name)+' → '+esc(v.dest.name)+'；动爻 '+(moved.map(r=>N[r.i]).join("、")||"无")+'。卦辞：'+esc(v.origin.judgment)+'</p><div class="section-title">可追溯的装卦推理链</div>'+evidence+'<div class="section-title">动爻原文与传统象义</div>'+ (titleLines||'<p>无动爻。</p>')+'<p>爻辞与纳甲的吉凶生克采用两套解释层，不将象义直接当作纳甲计分。当前无经校验的统一现代爻辞解释，不伪称已完成逐爻释义。</p>' +((goal==="timing"||goal==="trend")?'<div class="section-title">发展及时间依据</div><p>没有得到经过独立验证的应期证据，不能推断某个月或某天一定发生什么。</p>':"")+'<div class="section-title">风险与现实条件</div><p>'+esc(risks)+'</p><div class="section-title">最终结论</div><p><strong>'+esc(answer)+'</strong></p><p class="sub">易爻仅提供传统纳甲文化辅助分析。当前尚未完成独立验证的完整墓绝、伏神飞神、多动连锁旺衰权重及传统应期断法；这些缺口会限制具体吉凶判断。健康、法律与重大财务决策依赖专业事实与意见。</p></div>';
 return {html,intent,answer,facts,lineTexts,verified:v.origin.name+"→"+v.dest.name};
 }
-g.YiYaoEngineV4={load,verify,interpret,fromBits,getRelation,version:"4.1-intent-fix",identify:fields,directional};
+g.YiYaoEngineV4={load,verify,interpret,fromBits,getRelation,version:"4.1-intent-fix",identify:fields};
 })(window);

@@ -30,7 +30,8 @@ function question(q,requestedDomain){
  const promotion=/(升职|晋升|提拔|升迁|升一级|职级提升|升为|升到)/.test(cleaned);
  const demotion=/(降职|降级|被贬|下调职级|被撤职|免职)/.test(cleaned);
  const official=/(正式任命|职位任命|职务任命|被任命为|得到任命)/.test(cleaned);
- const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":base.object?.subtype||"general";
+ const breakup=/(分手|离婚|断联|彻底分开)/.test(cleaned);
+ const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":base.object?.subtype||"general";
  const recognize=[
   ["health",/健康|身体|症状|生病|疾病|病情|手术|康复|怀孕|胎儿/],
   ["legal",/官司|法院|起诉|诉讼|仲裁|法律纠纷|判决/],
@@ -141,7 +142,9 @@ function evaluate(c,i,use){
  if(related.length)register("secondary_moving","secondary","neutral",related.map(r=>pos(r)+" "+r.gz+r.r).join("、")+"发动","辅助条件出现变化，但不能直接替代主用神的判断",25);
  if(mov.length>1)register("multi_motion","multi","unresolved",mov.map(r=>pos(r)).join("、")+"同时发动","完整多动爻连环作用尚未独立核验，不根据动爻数量推算吉凶",40);
  const conflict=positive.length>0&&negative.length>0;
- const strongUnresolved=unresolved.some(x=>["no_visible_primary","multiple_primary","health_boundary"].includes(x.id));
+ const requiresSpecialRule=i.object.subtype==="demotion"||i.object.subtype==="breakup"||i.field==="legal";
+ if(requiresSpecialRule)register("unverified_goal_direction","method","unresolved","所问的结果不能直接套用一般的得利判断","这类事件需要专门的传统取用与吉凶映射规则，当前尚未独立核验",99);
+ const strongUnresolved=unresolved.some(x=>["no_visible_primary","multiple_primary","health_boundary","unverified_goal_direction"].includes(x.id));
  let status="insufficient_evidence";
  if(!strongUnresolved&&used){
   if(conflict)status="mixed_signals";
@@ -180,6 +183,7 @@ function humanize(c,i,use,j,verified){
   if(x.id==="no_visible_primary")return "这件事最关键的传统线索没有直接出现在本卦中，而隐藏线索的规则尚未完善，因此暂时没法判断方向。";
   if(x.id==="multiple_primary")return "同一种关键线索出现了不止一次，程序还无法可靠确定哪一个才代表你问的这件事。";
   if(x.id==="health_boundary")return "卦象没有医学判断能力，不能靠它推测病情。";
+  if(x.id==="unverified_goal_direction")return "这类问题的好坏方向不能照搬普通求成问题的规则，相关的专业判断还没有验证完成。";
   if(x.id==="multi_motion")return "这张卦同时有多处变化，程序还没有完成它们相互作用的判断，不能按变化数量定结果。";
   if(x.id==="primary_void")return "与这件事直接相关的一爻出现了“旬空”，在传统说法中意味着某些条件还要继续核实。";
   if(x.id==="back_control")return "关键一爻变化后，反而形成制约，这是需要注意的传统阻力信号。";
@@ -207,7 +211,7 @@ function render(c,i,use,j,h,verified){
  const movers=c.rows.filter(r=>[6,9].includes(c.totals[r.i]));
  const movedText=movers.length?movers.map(r=>POS[r.i]+"爻「"+lines[r.i]+"」").join("；"):"本次没有动爻。";
  const sub=(label,arr)=>arr.length?"<h4>"+ESC(label)+"</h4><ul>"+arr.map(x=>"<li>"+ESC(x.fact)+" — "+ESC(x.meaning)+" <small>["+ESC(x.id)+"]</small></li>").join("")+"</ul>":"";
- return '<div class="focus-report yiyan-v5" data-engine="5.0.0">'+
+ return '<div class="focus-report yiyan-v5" data-engine="5.0.1">'+
  '<div class="section-title">先说结论</div><p class="v5-lead"><strong>'+ESC(h.headline)+'</strong></p>'+
  '<div class="section-title">为什么这样说</div><ol class="v5-why">'+h.why.map(x=>"<li>"+ESC(x)+"</li>").join("")+"</ol>"+
  '<div class="section-title">接下来最值得关注什么</div>'+paragraph(h.action)+
@@ -227,7 +231,7 @@ function interpret(c){
  const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
-  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.0.0"};
+  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.0.1"};
 }
-g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.0.0"};
+g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.0.1"};
 })(window);

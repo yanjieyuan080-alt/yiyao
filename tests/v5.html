@@ -8,7 +8,7 @@ pre{white-space:pre-wrap;background:#fff;padding:20px;border:1px solid #ccd8c9;b
 <script src="../engine-v3.js?v=5.0.0"></script>
 <script src="../engine-v4.js?v=5.0.0"></script>
 <script src="../engine-v42.js?v=5.0.0"></script>
-<script src="../engine-v5.js?v=5.0.2"></script>
+<script src="../engine-v5.js?v=5.1.0"></script>
 <script>
 (async()=>{
  const results=[],add=(label,good,detail="")=>results.push({label,pass:!!good,detail});
@@ -127,6 +127,40 @@ function sampleQian(){
  add("法律争议不臆测判决方向",legal.judgment.status==="insufficient_evidence"&&legal.judgment.unresolved_factors.some(x=>x.id==="unverified_goal_direction"));
  const breakup=q(sampleBigOver,"我们会不会分手？");
  add("分手问题不反向套关系吉凶",breakup.judgment.status==="insufficient_evidence"&&breakup.intent.object.subtype==="breakup");
+
+ // 2026-10-13 17:14，实际案例：未来一个月会有兼职进来吗？
+ function sideJobFixture(question="未来一个月会有兼职进来吗？"){
+  const throwing=[[2,3,2],[3,3,2],[3,2,3],[3,3,3],[2,2,3],[3,2,3]],
+   totals=throwing.map(x=>x.reduce((a,b)=>a+b,0)),
+   bits=totals.map(x=>x%2),
+   gz=["庚子","庚寅","庚辰","丁亥","丁酉","丁未"],
+   vgz=["庚子","庚寅","庚辰","戊申","戊戌","戊子"],
+   k=["父母","兄弟","妻财","父母","官鬼","妻财"],
+   vk=["父母","兄弟","妻财","官鬼","妻财","父母"];
+  return {question,t:{day:"庚申"},throwing,totals,bits,changed:[1,0,0,0,1,0],
+   a:{name:"泽雷随",palace:"震宫",home:"木",shi:3,ying:6},b:{name:"水雷屯"},
+   rows:gz.map((g,i)=>({i,gz:g,vgz:vgz[i],r:k[i],vr:vk[i],animal:animals[i],empty:i===0})),
+   empty:["子","丑"],month:"戌",day:"申"};
+ }
+ const side=YiYaoEngineV5.interpret(sideJobFixture());
+ add("真实兼职：泽雷随→水雷屯原始数据一致",side.ok&&side.judgment.selected?.gz==="丁酉");
+ add("兼职问题识别为新机会而非职业趋势",side.intent.field==="career"&&side.intent.intent==="new_opportunity"&&side.intent.object.subtype==="side_job");
+ add("明确保留未来一个月",side.intent.window==="未来一个月");
+ add("明说兼职接洽，但不编造成交",side.answer.includes("兼职接洽")&&side.answer.includes("不能确定会真正接到兼职"));
+ add("动变：父母亥水化官鬼申金进入证据",side.judgment.supporting_factors.some(x=>x.id==="emerging_job_3"&&x.fact.includes("丁亥父母")&&x.fact.includes("戊申官鬼")));
+ add("新机会：回头生作为辅助证据",side.judgment.supporting_factors.some(x=>x.id==="emerging_support_3"));
+ add("实际世辰遭月戌冲，不可只讲有利",side.judgment.restricting_factors.some(x=>x.id==="self_month_clash")&&side.judgment.status==="mixed_signals");
+ add("变卦屯影响结论",side.answer.includes("屯")&&side.answer.includes("推进不易"));
+ add("兼职建议应关注档期报价开工",side.html.includes("档期")&&side.html.includes("报酬"));
+ add("白话首句不再提上级评价",!side.answer.includes("上级")&&!side.html.includes("上级对成果"));
+ const aNoSignal=YiYaoEngineV5.interpret(sideJobFixture("未来一个月会有兼职工作吗？"));
+ add("兼职同义问法也能识别",aNoSignal.intent.object.subtype==="side_job"&&aNoSignal.intent.intent==="new_opportunity");
+ const staticSide=q(sampleY,"未来一个月会有兼职进来吗？");
+ add("其他静卦没有硬编动化官鬼",!staticSide.judgment.supporting_factors.some(x=>x.id.startsWith("emerging_job_"))&&!staticSide.answer.includes("有出现兼职接洽或邀约"));
+ const hire=YiYaoEngineV5.identify("下个月公司能招到兼职员工吗？");
+ add("招聘兼职员工≠我接兼职",hire.object?.subtype==="part_time_hire");
+ const acceptPart=YiYaoEngineV5.identify("有一份兼职，我要不要接？");
+ add("接受现有兼职≠新兼职机会",acceptPart.intent==="accept_decision");
  const health=q(sampleBigOver,"我的身体健康会怎样？");
  add("健康结论保留医疗边界",health.judgment.status==="insufficient_evidence"&&health.answer.includes("不能用卦象"));
  const injected=sampleG();injected.a.shi=4;

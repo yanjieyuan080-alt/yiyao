@@ -1,0 +1,24 @@
+<!doctype html><meta charset="utf-8"><title>易爻 V4 自检</title><h1>易爻 V4 自动测试</h1><pre id="out">正在运行…</pre><script src="../engine-v3.js"></script><script src="../engine-v4.js"></script><script>
+(async()=>{
+const report=[],add=(name,pass,info='')=>report.push({name,pass,info});
+try{const corpus=await YiYaoEngineV4.load();add("64卦数据完整",Object.keys(corpus).length===64);
+add("384条爻辞完整",Object.values(corpus).reduce((n,x)=>n+x.lines.length,0)===384);
+const trig={乾:[1,1,1],兑:[1,1,0],离:[1,0,1],震:[1,0,0],巽:[0,1,1],坎:[0,1,0],艮:[0,0,1],坤:[0,0,0]},order=Object.keys(trig);
+let all=0,miss=[];
+for(const upper of order)for(const lower of order){
+ const key=(order.indexOf(upper)+1)+","+(order.indexOf(lower)+1);
+ const bits=[...trig[lower],...trig[upper]];
+ const names=YiYaoEngineV4.fromBits(bits);const entry=corpus[key];
+ if(entry&&names[0]===upper&&names[1]===lower)all++;else miss.push(key);
+ for(let i=0;i<6;i++){const changed=bits.map((x,j)=>i===j?1-x:x);const trans=YiYaoEngineV4.fromBits(changed);if(!corpus[(order.indexOf(trans[0])+1)+","+(order.indexOf(trans[1])+1)])miss.push("动变:"+key+":"+i);}
+}
+add("64卦结构与384单爻变卦可索引",all===64&&miss.length===0,JSON.stringify(miss.slice(0,10)));
+const fixtures=[{n:[8,7,7,9,8,8],a:"雷风恒",b:"地风升"},{n:[7,7,6,6,6,8],a:"地泽临",b:"泽天夬"}];
+for(const f of fixtures){const bits=f.n.map(n=>n%2),changed=bits.map((x,i)=>[6,9].includes(f.n[i])?1-x:x);
+ const toName=b=>{const [u,l]=YiYaoEngineV4.fromBits(b);return corpus[(order.indexOf(u)+1)+","+(order.indexOf(l)+1)].name;};
+ add(f.a+"→"+f.b,toName(bits)===f.a&&toName(changed)===f.b);}
+const q=["未来三个月，这份工作的发展方向是什么？","这个五家店的项目，如果接了，对我有什么影响？","四个项目都会出成果吗？风险是什么？","这个项目什么时候能出成果？","未来三个月收入是否有明显变化？","这笔货款什么时候能到账？","我和对方的感情未来会怎样？","这段关系是否有复合机会？","这个合同能否顺利签署？","这套房子适不适合买？","我和这个合作伙伴能否长期合作？","这次考试能不能通过？","最近身体状况如何？","未来三个月的整体发展趋势是什么？","A项目和B项目哪个更值得投入？","这个人是否值得信任？"];
+for(const text of q){const i=YiYaoEngineV3.identify(text);add("意图："+text,i.ok,i.ok?i.field+"/"+i.intent:i.error);}
+}catch(e){add("测试执行",false,String(e.stack||e))}
+document.getElementById("out").textContent=report.map(x=>(x.pass?"PASS":"FAIL")+" "+x.name+(x.info?" ｜"+x.info:"")).join("\n")+"\n\n通过："+report.filter(x=>x.pass).length+" / "+report.length;
+})();</script>

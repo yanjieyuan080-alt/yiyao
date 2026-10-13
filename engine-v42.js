@@ -144,7 +144,7 @@ function summarize(c,base,info){
  const warnGlos=warningLines.map(t=>LINE_GLOSSES[old]?.[t.position]).filter(Boolean);
  const affected=moved.filter(r=>c.empty.includes(r.gz[1])||c.empty.includes(r.vgz[1]));
  const emptyNote=affected.map(r=>position(r.i)+" "+r.gz+r.r+"（"+(c.empty.includes(r.gz[1])?"本爻空":"")+(c.empty.includes(r.gz[1])&&c.empty.includes(r.vgz[1])?"、":"")+(c.empty.includes(r.vgz[1])?"变爻空":"")+"）").join("；");
- const useMove=moved.filter(r=>config.primary.includes(r.r)||config.primary.includes(r.vr));
+ const useMove=moved.filter(r=>config.primary.includes(r.r)||config.primary.includes(r.vr)).sort((a,b)=>Number(config.primary.includes(b.r))-Number(config.primary.includes(a.r)));
  const yearWindow=intent.window&&intent.window!=="未明确时间范围"?intent.window:"接下来";
  const scope=goal==="trend"?"关于"+yearWindow+"的"+config.topic+"走向":
             goal==="timing"?"关于"+config.topic+"何时发生":
@@ -163,6 +163,7 @@ function summarize(c,base,info){
  else if(goal==="trend")verdict+="这一变化只能理解为传统象义上的发展方向，不表示期限内一定发生具体职务或收入变化。";
  else if(goal==="outcome")verdict+="有关用神"+(useMove.length?"出现发动":"未直接发动")+"，但不支持断定事情必成或必败。";
  else if(goal==="risk")verdict+="需要综合动爻原文与受制条件，而不是只看变卦是否吉利。";
+ if(warningLines.length)verdict+="但"+warningLines.map(t=>position(t.position-1)).join("、")+"存在明确的警示爻辞，不能只因变卦较积极就断定一切顺利。";
  const coreSentences=[];
  if(isSelfMoving){
   const sr=moved.find(r=>r.i===si);
@@ -173,6 +174,7 @@ function summarize(c,base,info){
   const role=config.roles[r.r]||"相关条件";
   coreSentences.push(position(r.i)+" "+r.gz+r.r+"变"+r.vgz+r.vr+"（"+backRelation(r.gz[1],r.vgz[1])+"），涉及"+role);
  }
+ for(const r of moved){if(!useMove.includes(r)&&lineWarn(base.lineTexts.find(t=>t.position===r.i+1)?.text)){coreSentences.push(position(r.i)+" "+r.gz+r.r+"化"+r.vgz+r.vr+"（"+backRelation(r.gz[1],r.vgz[1])+"），但对应爻辞含风险警示，需要与有利因素一同权衡");}}
  if(!useMove.length&&moved.length)coreSentences.push("动爻虽然出现，但主要用神未直接发动，不能把所有变化强行归为"+config.topic);
  if(!moved.length)coreSentences.push("此卦无动爻，不能只凭静卦断言事件绝不发生");
  let corePara="关键依据："+coreSentences.join("；")+"。";

@@ -47,11 +47,12 @@ const impact=/(对我|个人|我自己).*(影响|变化|收益|压力|损失|后
 const risk=/(风险|隐患|阻碍|危险|损失|代价|问题是什么)/.test(clean);
 const outcome=/(能否|是否|会不会|能不能|会有|成果|结果|成功|达成|通过|签成|回款)/.test(clean);
 const trend=/(未来|接下来|后续|发展|变化|走向|趋势)/.test(clean);
+const subtype=/(升职|晋升|提拔|升迁|职级晋升|岗位晋升)/.test(clean)?"promotion":opportunity?"future_new_allocation":accept?"existing_offer_choice":trend?"ongoing_development":"specific_question";
 let primary=compare?"comparison":opportunity?"new_opportunity":accept?"accept_decision":timing?"timing":impact?"personal_impact":risk?"risk":trend?"trend":outcome?"outcome":"outcome";
 const intents=[primary];
 for(const [name,value] of [["new_opportunity",opportunity],["accept_decision",accept],["outcome",outcome],["trend",trend],["timing",timing],["personal_impact",impact],["risk",risk],["comparison",compare]])if(value&&!intents.includes(name))intents.push(name);
 if(primary==="new_opportunity"){const bad=intents.indexOf("accept_decision");if(bad>=0)intents.splice(bad,1);}
-return {...base,question:raw,intent:primary,intents,object:{domain:base.field,subtype:opportunity?"future_new_allocation":accept?"existing_offer_choice":trend?"ongoing_development":"specific_question",primary_intent:primary,intents,time_window:base.window,original_question:raw}};
+return {...base,question:raw,intent:primary,intents,object:{domain:base.field,subtype,primary_intent:primary,intents,time_window:base.window,original_question:raw}};
 }
 function interpret(c){
 const v=verify(c),intent=fields(c.question);if(!intent.ok)throw Error(intent.error);

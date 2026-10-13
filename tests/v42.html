@@ -50,6 +50,30 @@
   for(const [q,field] of cases){const o=YiYaoEngineV42.interpret(sampleK(q));add("领域："+field,o.intent.field===field&&o.answer.includes(o.intent.field==="career"?"职责、项目安排":o.intent.field==="finance"?"财务":o.intent.field==="relationship"?"关系":"")&&o.answer.length>60,o.intent.field);domains.push(o.answer);}
   add("同卦不同领域：内容不一致",new Set(domains).size===domains.length);
   add("健康不做诊断",YiYaoEngineV42.interpret(sampleK("最近身体健康如何？")).html.includes("不通过卦象诊断"));
+  // 2026-10-13 16:23 真实卦例：泽风大过→火天大有，初五上爻动。
+  function sampleBigOver(){
+    const throwing=[[2,2,2],[2,2,3],[2,2,3],[2,2,3],[3,3,3],[2,2,2]],
+       totals=[6,7,7,7,9,6],bits=totals.map(n=>n%2),
+       gz=["辛丑","辛亥","辛酉","丁亥","丁酉","丁未"],
+       vgz=["甲子","甲寅","甲辰","己酉","己未","己巳"],
+       r=["妻财","父母","官鬼","父母","官鬼","妻财"],
+       vr=["父母","兄弟","妻财","官鬼","妻财","子孙"];
+    return {question:"未来五个月我的这份工作的发展会怎么样",t:{day:"庚申"},
+       throwing,totals,bits,changed:[1,1,1,1,0,1],
+       a:{name:"泽风大过",palace:"震宫",home:"木",shi:4,ying:1},
+       b:{name:"火天大有"},
+       rows:gz.map((v,i)=>({i,gz:v,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===0})),
+       empty:["子","丑"],month:"戌",day:"申"};
+  }
+  const big=YiYaoEngineV42.interpret(sampleBigOver());
+  add("大过→大有：正确计算初五上动爻",big.verified.includes("泽风大过")&&big.verified.includes("火天大有")&&big.lineTexts.length===3);
+  add("五个月时间范围识别",big.intent.window==="未来五个月",big.intent.window);
+  add("上六凶辞不能从核心判断遗漏",big.answer.split("\n")[0].includes("警示")&&big.answer.includes("过涉灭顶"));
+  add("三条动爻全部进入核心依据",big.answer.includes("初爻 辛丑")&&big.answer.includes("五爻 丁酉")&&big.answer.includes("上爻 丁未"));
+  add("事业官鬼动爻优先于非核心妻财",big.answer.indexOf("五爻 丁酉官鬼")<big.answer.indexOf("初爻 辛丑妻财"));
+  add("动爻本变同时旬空可见",big.answer.includes("本爻空、变爻空"));
+  const calendar=big.signals.find(x=>x.kind==="calendar");
+  add("月日作用于世爻方向明确",calendar.fact.includes("戌克亥")&&calendar.fact.includes("申生亥"),calendar.fact);
   const corrupt=sampleK();corrupt.a.shi=2;
   try {YiYaoEngineV42.interpret(corrupt);add("错误世应必须阻止或复核",false,"原有 V4 verify 未独立核对世应");}
   catch(e){add("错误世应必须阻止或复核",true,String(e));}

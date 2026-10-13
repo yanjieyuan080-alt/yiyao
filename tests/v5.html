@@ -146,7 +146,7 @@ function sampleQian(){
  add("真实兼职：泽雷随→水雷屯原始数据一致",side.ok&&side.judgment.selected?.gz==="丁酉");
  add("兼职问题识别为新机会而非职业趋势",side.intent.field==="career"&&side.intent.intent==="new_opportunity"&&side.intent.object.subtype==="side_job");
  add("明确保留未来一个月",side.intent.window==="未来一个月");
- add("明说兼职接洽，但不编造成交",side.answer.includes("兼职接洽")&&side.answer.includes("不能确定会真正接到兼职"));
+ add("直接回答兼职接洽与兑现",side.answer.includes("来找你谈兼职")&&side.answer.includes("能不能谈成"));
  add("动变：父母亥水化官鬼申金进入证据",side.judgment.supporting_factors.some(x=>x.id==="emerging_job_3"&&x.fact.includes("丁亥父母")&&x.fact.includes("戊申官鬼")));
  add("新机会：回头生作为辅助证据",side.judgment.supporting_factors.some(x=>x.id==="emerging_support_3"));
  add("实际世辰遭月戌冲，不可只讲有利",side.judgment.restricting_factors.some(x=>x.id==="self_month_clash")&&side.judgment.status==="mixed_signals");

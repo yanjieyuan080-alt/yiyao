@@ -52,7 +52,7 @@ body::before{content:"✳ 今天也要开心！";position:fixed;left:1.6%;bottom
 body::after{content:"(ง •̀_•́)ง  冲鸭！";position:fixed;right:2%;top:9%;font-family:"Comic Sans MS","Kaiti",cursive;font-weight:bold;font-size:clamp(14px,1.8vw,25px);color:#f28716;transform:rotate(9deg);opacity:.16;pointer-events:none}
 .card{position:relative;z-index:1}.analysis .section-title{border-left:4px solid #f88917;padding-left:11px}.analysis p{line-height:1.95;margin-bottom:17px}.analysis .focus-report{background:#fff4e3;border:1px dashed #efbc7c;padding:18px 21px;border-radius:16px;margin-top:22px}.analysis .focus-report p{margin-bottom:14px}
 @media(max-width:760px){.wrap::before,.wrap::after,body::before,body::after{opacity:.08;font-size:16px}}
-.analysis .focus-report .verdict{background:#ffe7c2;padding:17px 19px;border-left:5px solid #ef7b0e;border-radius:8px;font-size:17px;color:#542c10}.analysis .focus-report p{line-height:2}</style></head><body><div class="wrap"><header><div class="eyebrow">蜜城之恋 · 趣味六爻小测试</div><h1>易爻</h1><p>心有所问，六爻有象 · 依古法排卦，以常言解意</p></header><main class="grid"><section class="card"><h2>01 · 静心问事</h2><label class="label" for="question">你想问的事情</label><textarea id="question" maxlength="500" placeholder="例如：未来三个月，这份工作是否有继续发展的空间？"></textarea><div class="help">一次聚焦一个问题，具体的问题更容易获得有针对性的解读。</div><label class="label" for="kind">问题类型 / 取用神</label><select id="kind"><option value="auto">自动判断（可手动调整）</option><option value="career">事业 / 考试 / 官非（官鬼）</option><option value="money">收入 / 生意 / 财运（妻财）</option><option value="relationship">感情 / 伴侣（需结合世应）</option><option value="house">房屋 / 合同 / 文书（父母）</option><option value="friends">朋友 / 合作 / 竞争（兄弟）</option><option value="children">子女 / 兴趣 / 休养（子孙）</option><option value="health">身体 / 疾病（官鬼为病象）</option></select></section><section class="card"><h2>02 · 起卦方式</h2><div class="radio"><label><input type="radio" name="method" value="coins" checked> 三钱六摇 · 随机</label><label><input type="radio" name="method" value="manual"> 手动录入六爻</label></div><p class="help">三钱六摇：每爻掷三枚钱币，正面记3、反面记2，依初爻到上爻，共六次。随机起卦使用浏览器安全随机数。</p><div id="manualBox" style="display:none"><label class="label" for="manual">依初爻至上爻，输入六组（三位数字，每位2或3）</label><textarea id="manual" placeholder="例如：223 332 222 233 323 333"></textarea></div><label class="label" for="timezone">起卦时区</label><select id="timezone"><option value="Asia/Shanghai">北京时间 · UTC+8</option><option value="America/Los_Angeles">美国太平洋时间</option><option value="America/New_York">美国东部时间</option><option value="Europe/London">英国时间</option><option value="Asia/Tokyo">日本时间</option></select><p class="help">时间按所选时区计算，年以立春、月以节气分界。日柱采用子初换日口径。</p><button class="btn" id="cast">起卦 · 见其所象</button><div id="error" class="error" aria-live="polite"></div></section><section id="output" class="full details"><div class="grid"><section class="card full"><h2>03 · 起卦时间</h2><div id="time" class="meta"></div><p class="sub" id="topic"></p></section><section class="card full"><h2>04 · 本卦与变卦</h2><div id="hexes" class="hexset"></div><p id="movement" class="sub"></p></section><section class="card full"><h2>05 · 三钱六摇</h2><div class="scroll"><table><thead><tr><th>爻位</th><th>钱面（初→上）</th><th>和数</th><th>阴阳</th><th>符号</th></tr></thead><tbody id="tossTable"></tbody></table></div></section><section class="card full"><h2>06 · 纳甲装卦盘</h2><div id="palace" class="meta"></div><div class="scroll"><table><thead><tr><th>爻位</th><th>本 / 变</th><th>本卦干支</th><th>六亲</th><th>世应</th><th>六兽</th><th>旬空</th><th>动变（变爻干支、六亲）</th></tr></thead><tbody id="chartTable"></tbody></table></div></section><section class="card full analysis"><h2>07 · 易爻解卦</h2><div id="reading"></div><button class="btn secondary" id="copy">复制完整卦盘</button><button class="btn secondary" id="again">再起一卦</button><p class="sub">本工具以京房八宫纳甲排盘，解读属于传统民俗文化的规则化辅助分析，不提供确定的未来预测；医疗、法律和重要财务决策请以专业意见与客观证据为准。</p></section></div></section></main><p class="footer">易爻 · 蜜城之恋手写趣味版 V2.7 · 2026-10-13</p></div><script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script><script>
+.analysis .focus-report .verdict{background:#ffe7c2;padding:17px 19px;border-left:5px solid #ef7b0e;border-radius:8px;font-size:17px;color:#542c10}.analysis .focus-report p{line-height:2}</style></head><body><div class="wrap"><header><div class="eyebrow">蜜城之恋 · 趣味六爻小测试</div><h1>易爻</h1><p>心有所问，六爻有象 · 依古法排卦，以常言解意</p></header><main class="grid"><section class="card"><h2>01 · 静心问事</h2><label class="label" for="question">你想问的事情</label><textarea id="question" maxlength="500" placeholder="例如：未来三个月，这份工作是否有继续发展的空间？"></textarea><div class="help">一次聚焦一个问题，具体的问题更容易获得有针对性的解读。</div><label class="label" for="kind">问题类型 / 取用神</label><select id="kind"><option value="auto">自动判断（可手动调整）</option><option value="career">事业 / 考试 / 官非（官鬼）</option><option value="money">收入 / 生意 / 财运（妻财）</option><option value="relationship">感情 / 伴侣（需结合世应）</option><option value="house">房屋 / 合同 / 文书（父母）</option><option value="friends">朋友 / 合作 / 竞争（兄弟）</option><option value="children">子女 / 兴趣 / 休养（子孙）</option><option value="health">身体 / 疾病（官鬼为病象）</option></select></section><section class="card"><h2>02 · 起卦方式</h2><div class="radio"><label><input type="radio" name="method" value="coins" checked> 三钱六摇 · 随机</label><label><input type="radio" name="method" value="manual"> 手动录入六爻</label></div><p class="help">三钱六摇：每爻掷三枚钱币，正面记3、反面记2，依初爻到上爻，共六次。随机起卦使用浏览器安全随机数。</p><div id="manualBox" style="display:none"><label class="label" for="manual">依初爻至上爻，输入六组（三位数字，每位2或3）</label><textarea id="manual" placeholder="例如：223 332 222 233 323 333"></textarea></div><label class="label" for="timezone">起卦时区</label><select id="timezone"><option value="Asia/Shanghai">北京时间 · UTC+8</option><option value="America/Los_Angeles">美国太平洋时间</option><option value="America/New_York">美国东部时间</option><option value="Europe/London">英国时间</option><option value="Asia/Tokyo">日本时间</option></select><p class="help">时间按所选时区计算，年以立春、月以节气分界。日柱采用子初换日口径。</p><button class="btn" id="cast">起卦 · 见其所象</button><div id="error" class="error" aria-live="polite"></div></section><section id="output" class="full details"><div class="grid"><section class="card full"><h2>03 · 起卦时间</h2><div id="time" class="meta"></div><p class="sub" id="topic"></p></section><section class="card full"><h2>04 · 本卦与变卦</h2><div id="hexes" class="hexset"></div><p id="movement" class="sub"></p></section><section class="card full"><h2>05 · 三钱六摇</h2><div class="scroll"><table><thead><tr><th>爻位</th><th>钱面（初→上）</th><th>和数</th><th>阴阳</th><th>符号</th></tr></thead><tbody id="tossTable"></tbody></table></div></section><section class="card full"><h2>06 · 纳甲装卦盘</h2><div id="palace" class="meta"></div><div class="scroll"><table><thead><tr><th>爻位</th><th>本 / 变</th><th>本卦干支</th><th>六亲</th><th>世应</th><th>六兽</th><th>旬空</th><th>动变（变爻干支、六亲）</th></tr></thead><tbody id="chartTable"></tbody></table></div></section><section class="card full analysis"><h2>07 · 易爻解卦</h2><div id="reading"></div><button class="btn secondary" id="copy">复制完整卦盘</button><button class="btn secondary" id="again">再起一卦</button><p class="sub">本工具以京房八宫纳甲排盘，解读属于传统民俗文化的规则化辅助分析，不提供确定的未来预测；医疗、法律和重要财务决策请以专业意见与客观证据为准。</p></section></div></section></main><p class="footer">易爻 · 蜜城之恋手写趣味版 V2.8 · 2026-10-13</p></div><script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.7/lunar.js"></script><script>
 'use strict';
 const $=id=>document.getElementById(id), GAN='甲乙丙丁戊己庚辛壬癸'.split(''), ZHI='子丑寅卯辰巳午未申酉戌亥'.split('');
 const els={木:'木',火:'火',土:'土',金:'金',水:'水'}, zEl={子:'水',丑:'土',寅:'木',卯:'木',辰:'土',巳:'火',午:'火',未:'土',申:'金',酉:'金',戌:'土',亥:'水'};
@@ -170,9 +170,43 @@ const deepReport=`<div class="focus-report"><div class="section-title">详细推
 <p><strong>第四层｜你能得到支持，还是要自己扛。</strong>${supportContext}如果放在现实里检验，应该核查对方是否愿意给人、给预算、给决策权，或承担相应责任；只有口头支持并不足够。</p>
 <p><strong>第五层｜可能的结果以及代价。</strong>按当前已实现的规则，卦内方向为「${tendency}」。${tendency==='偏有利'?'说明基础生扶信号相对多，但这不意味着做起来毫无阻力，也不保证能得到收益。':tendency==='偏不利'?'说明限制和阻力信号较多，若要推进，先处理实际障碍通常比硬上更稳妥。':'说明现有信号不足以支持“一定顺利”或“一定不顺”，更适合保留调整空间。'}${refuseQuestion?'你问的是“不做的后果”，因此不应把有利于接手的信号直接反过来解释成不接就会倒霉。':'你问的是这件事的结果，不能把对事情有利误写成对你个人一定有利。'}</p>
 <p><strong>最后落到决策：</strong>${refuseQuestion?'拒绝之前，把违约义务、人员交接、合作沟通和放弃的收益分别确认清楚。':k==='career'?'重点确认这件事最终谁负责、谁执行、你有没有调配资源的权力、怎么评价成果、付出是否有对应回报。':'把决定拆成能核实的条件：对方回应、具体成本、时间节点和最终兑现方式。'} 卦象分析只能提供传统术数视角，不能替代真实项目数据和现实判断。</p></div>`;
+const workTrend=/工作|事业|职业|岗位|职场|项目/.test(question)&&/未来|接下来|后续|发展方向|发展趋势|走向|三个月|半年|一年|会发生什么|会怎样变化/.test(question)&&!/(如果我接|接了|不接|是否接受|要不要接|值得接|是否离职|要不要辞|离职好不好)/.test(question);
+const trajectoryWork=workTrend?(()=>{
+ const moving=active.map(r=>r.i+1);
+ const isLin=a.name==='地泽临'&&b.name==='泽天夬';
+ const parts=isLin?[
+ '六三发动：传统爻辞是「甘临，无攸利。既忧之，无咎」。可以理解为，原来靠好说话、顺势承担或只求表面推进的方式，容易出现投入不少、结果不够扎实的问题；及时发现并调整，比继续增加工作量更重要。',
+ '六四发动：爻辞「至临，无咎」，强调真正接近事务、把责任落实到位。现实里更值得观察你能否进入核心业务、掌握关键事实，而不只是处理零散执行。',
+ '六五发动：爻辞「知临，大君之宜，吉」，重点在判断和统筹。后续更重要的可能是如何定方向、分责任、协调资源，而不是你一个人把所有工作做完。'
+ ]:active.map(r=>'第'+(r.i+1)+'爻发动：'+r.gz+r.r+'变'+r.vgz+r.vr+'，'+(empty.includes(r.gz[1])?'本爻旬空，':'')+'代表这一位置上的关系值得继续追踪，尚不能据此确定某个月会发生何种事件。');
+ const detailed=isLin?'「临」到「夬」，可将卦象理解为从逐步介入、承担管理事务，发展到必须明确规则、界限和取舍。这是一条传统象义上的变化线索，不是对晋升、离职的保证。': '本卦「'+a.name+'」到变卦「'+b.name+'」，反映所问事项存在变化。要判断发展方向，仍应以世爻、用神、动爻组合为主，不能只靠卦名推测职位变化。';
+ const emptyDetail=rows.filter(r=>moves[r.i]&&r.empty).map(r=>position[r.i]+' '+r.gz+r.r).join('、');
+ const branchDetails=active.map(r=>{
+  const oldEl=zEl[r.gz[1]],newEl=zEl[r.vgz[1]];
+  const logic=sheng[newEl]===oldEl?'回头生':ke[newEl]===oldEl?'回头克':sheng[oldEl]===newEl?'动爻生变爻':ke[oldEl]===newEl?'动爻克变爻':'同五行';
+  return position[r.i]+' '+r.gz+r.r+' → '+r.vgz+r.vr+'（'+logic+'）';
+ }).join('；');
+ const factors= isLin?'世爻官鬼卯木临二爻，月戌与卯合、日申金克卯，不能简单把「合」算成一分好事、「克」算成一分坏事；需结合合绊、旺衰和三处动爻。应爻亥水妻财发动并非一条静止的“外部支持”线，且三、四爻丑土兄弟同时发动又逢旬空，要警惕责任、资源或竞争关系尚未落定。':'世爻'+world.gz+world.r+'，月建作用是'+influence(month,world.gz[1])+'、日辰作用是'+influence(day,world.gz[1])+'；应爻'+respond.gz+respond.r+'。关键爻变化为：'+branchDetails+'。';
+ const finalText=isLin?'传统象义更偏向：未来一段时间，工作重点从接手和推进事务，转向责任界定、统筹判断与明确取舍。可以把它当作观察方向，但卦盘尚不足以推断具体升职、离职或收入变化。':'就卦盘已核实的关系，只能判断工作中存在变化因素，尚不足以把变化具体归结为升职、换岗、离职或薪酬变化。';
+ const stages=isLin?[
+ '前段（起卦后约第1个月）：对照六三，检查哪些工作做了很多却没有改善核心结果，明确是否存在反复返工或责任模糊。',
+ '中段（约第2个月）：对照六四，重点观察是否进入更核心的项目环节，以及是否获得相应的协调权限。',
+ '后段（约第3个月）：对照六五及夬卦，重点观察是否出现需要你明确取舍、分配责任或决定继续投入范围的局面。'
+ ]:['前段：观察目前工作职责与协作边界是否变化。','中段：观察动爻对应的资源或人际关系是否得到落实。','后段：根据实际反馈决定继续、调整还是退出相关投入。'];
+ return `<div class="focus-report"><div class="section-title">未来工作走向 · 结合本卦与三处动爻</div>
+ <p><strong>直接回答：</strong>${finalText}</p>
+ <p><strong>本卦与变卦：</strong>${detailed}</p>
+ <p><strong>三钱六摇：</strong>六爻从下往上依次为${totals.join('、')}；${moving.length}爻发动（${moving.join('、')}爻）。钱面负责确定卦形与动爻，不是单独的好运坏运计分。</p>
+ <p><strong>动爻逐条解释：</strong>${parts.map((x,i)=>'<br>'+(i+1)+'．'+x).join('')}</p>
+ <p><strong>纳甲装卦的关键证据：</strong>${factors} ${emptyDetail?'其中'+emptyDetail+'逢旬空；旬空的影响还需综合出空、冲空以及动变条件，不能直接解释成“完全不会发生”。':''}</p>
+ <p><strong>三个月怎么观察：</strong><br>${stages.join('<br>')}以上是为了便于用户落实而划分的观察阶段，不是卦象精准推出这些日期必然发生对应事件。</p>
+ <p><strong>现实里最需要防范：</strong>工作责任扩大却没有同步取得权限、人员、预算或明确的成果归属；如果推进效率没有改善，应及时调整方式，而不是单纯加班补位。</p>
+ <p class="verdict"><strong>最终结论：</strong>${finalText} 如果近期确实出现职责扩大、跨部门协作或决策要求提高的情况，建议先明确权责及成果评价，再决定是否继续增加投入。</p>
+ <p class="sub">以上以纳甲世应、六亲、日月、动变为主要依据；「临」「夬」及爻辞只作传统象义辅助，不把爻辞等同于纳甲生克。伏神、多动爻连环作用及旺衰细则仍需进一步校核。本解读仅供传统文化体验，不能预测具体职业事件。</p></div>`;
+})();
 const refusal=refuseQuestion?respondToRefusal():null;
-insight+=projectDetail;
-insight+=deepReport;
+if(!workTrend)insight+=projectDetail;
+if(!workTrend)insight+=deepReport;
 // 最终结论：综合六摇、卦象、装卦和解读，先回答原问题，再给证据链与行动。
 const movingPositions=active.map(r=>position[r.i]).join('、')||'无';
 const coinDescription=totals.map((v,i)=>position[i]+' '+v+({6:'（老阴，变阳）',7:'（少阳，不变）',8:'（少阴，不变）',9:'（老阳，变阴）'}[v])).join('；');
@@ -191,7 +225,7 @@ if(acceptProject){
 }
 const recommendation=refusal?refusal.action:acceptProject?'建议先把具体门店数量、各店执行负责人、项目期限、你能调动的资源、出问题时谁协调以及最终回报写清楚。条件能落地再接；如果只有结果要求却不给执行权和配套资源，就应该重新谈范围或拒绝。':action;
 const resultClass=tendency==='偏有利'?'偏向有利':tendency==='偏不利'?'阻力偏大':tendency==='信息不足'?'暂不能可靠定向':'利弊并存';
-insight+=`<div class="focus-report"><div class="section-title">结论与建议 · 完整综合断语</div>
+if(!workTrend)insight+=`<div class="focus-report"><div class="section-title">结论与建议 · 完整综合断语</div>
 <p><strong>你问的是：</strong>${escapeHTML(question)}</p>
 <p><strong>先说卦里的倾向：</strong>${directionText}</p>
 <p><strong>一、为什么会得到这个判断？</strong>这次三钱六摇从初爻到上爻依次是：${coinDescription}。其中${movingPositions}发动，所以本卦「${a.name}」变为「${b.name}」。六次钱面决定的是卦形以及哪里发生变化，本身并不代表六项独立的吉凶分数。判断后续趋势，要重点看发动的爻改变了哪一类关系。</p>
@@ -203,6 +237,7 @@ insight+=`<div class="focus-report"><div class="section-title">结论与建议 �
 <p class="verdict"><strong>最终结论：</strong>${resultClass}。就这次所问而言，${directionText} ${refusal?'如果决定不接，关键是退出或拒绝方式是否清楚，并非卦里能断定会遭受什么报复。':acceptProject?'建议采取“条件明确再承接”的方式，而不是无条件接手。':recommendation}</p>
 <p class="sub">依据范围：当前程序已实现的八宫、纳甲、六亲、世应、日月与基础动变规则；伏神、复杂动变生克、进退神等尚未完整校验。这里提供的是传统术数视角下的初步推演，不是可验证的未来事实或替代现实决策的依据。</p></div>`;
 
+if(workTrend) insight+=trajectoryWork;
 $('reading').innerHTML=insight;$('output').classList.add('show');$('output').scrollIntoView({behavior:'smooth',block:'start'});window.lastReading={question,t,throwing,html:$('output').innerText};
 }catch(e){$('error').textContent=e.message||'排盘失败，请检查输入后重试。';}}
 document.querySelectorAll('input[name="method"]').forEach(x=>x.addEventListener('change',()=>{$('manualBox').style.display=x.value==='manual'&&x.checked?'block':'none'}));$('cast').onclick=cast;$('again').onclick=()=>{window.scrollTo({top:0,behavior:'smooth'})};$('copy').onclick=async()=>{if(!window.lastReading)return;try{await navigator.clipboard.writeText(window.lastReading.html);$('copy').textContent='已复制'}catch(e){$('copy').textContent='复制失败，请手动选择文本'}};

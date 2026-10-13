@@ -254,19 +254,35 @@ function humanize(c,i,use,j,verified){
  }
  if(i.intent==="new_opportunity"&&i.object.subtype==="side_job"){
     const hasEmerging=j.supporting_factors.some(x=>x.id.startsWith("emerging_job_"));
+    const activeOffice=j.supporting_factors.some(x=>x.id.startsWith("active_office_"));
+    const paperworkVoid=j.unresolved_factors.some(x=>x.id.startsWith("office_paper_void_"));
+    const selfVoid=j.unresolved_factors.some(x=>x.id==="self_move_void");
+    const selfAdvance=j.supporting_factors.some(x=>x.id==="self_advance");
+    const selfChangeClash=j.unresolved_factors.some(x=>x.id==="self_change_month_clash");
     const hasClash=j.restricting_factors.some(x=>x.id==="self_month_clash");
-    const time=i.window!=="未明确时间范围"?i.window+"，":"接下来，";
-    const formation=hasEmerging?"卦里有从任务安排变化到工作机会的传统象义线索，说明可以关注有没有人来谈兼职。":"目前缺少直接指向新兼职的变化线索。";
-    const obstacle=hasClash?"不过也有承接条件不稳的象义，":"";
-    const startObstacle=c.b.name.includes("屯")?"变卦「屯」也有事情刚起步、推进不易的传统含义。":"";
-    lead=hasEmerging?
-      "按这卦的传统象义，"+time+"可能有人来找你谈兼职，但一个月内能不能谈成、真正开始做，还看不稳。"+
-       (hasClash?"你这边的承接条件也有变化或阻力的象义。":"")+
-       startObstacle+"有机会来聊，不等于活已经确定。":
-      "按这卦目前能核对的传统规则，"+time+"还看不出足够明确的新兼职线索，不能因此断定一定有或一定没有。";
-    // 与模板化“工作发展较有利”不同，区分接洽、确认、开工、到账四个阶段。
-    if(hasEmerging)j.opportunity_stage="contact_possible_unconfirmed";
-    j.reading_basis=formation;
+    const time=i.window!=="未明确时间范围"?i.window+"里，":"接下来，";
+    const starter=hasEmerging?
+      "这卦有从沟通安排转向工作机会的传统象义，可能会出现兼职接洽，但能不能谈成还不好确定。":
+      activeOffice?
+      "工作相关的爻直接发动，传统上可以理解为兼职机会有动静，但还不能说明一定会有人来找你。":
+      "现在没有足够明确的动爻依据支持新兼职机会一定出现。";
+    const conditions=[
+       paperworkVoid?"工作相关爻变为安排类爻，但变爻逢空，像是条件还没有落实。":"",
+       selfVoid?"代表你自身的一爻也在动且旬空，承接条件仍有变数。":"",
+       selfAdvance?"世爻化进神，在常见规则中有逐步推进的象义。":"",
+       selfChangeClash?"但世爻变爻与月建相冲，不能把进神直接当成已经谈成。":"",
+       hasClash?"世爻受月冲，时间或承接安排可能需要协调。":""
+    ].filter(Boolean);
+    const originLines=verified.origin.lines.filter((t,index)=>[6,9].includes(c.totals[index]));
+    const delays=originLines.some(t=>/愆期|迟归|未至|迟|待/.test(t));
+    const timing=delays?"动爻原文还有等待、延期的象义，尤其不宜断定在限定时间内就能落实。":
+      c.b.name.includes("屯")?"变卦「屯」有开始阶段不顺、需要磨合的传统象义。":"";
+    lead="看"+time+starter+
+      (conditions.length?" "+conditions.slice(0,3).join(" "):"")+
+      (timing?" "+timing:"")+
+      "简单说，卦里有动静也不代表兼职已签好、开始做或拿到钱。";
+    if(hasEmerging||activeOffice)j.opportunity_stage=(paperworkVoid||selfVoid||selfChangeClash||hasClash)?"movement_with_unsettled_conditions":"movement_unconfirmed";
+    j.reading_basis=starter;
  }
   if(i.field==="health")lead="这类健康问题不能用卦象判断诊断、治疗或康复结果。可以查看传统文化象义，但具体健康问题应依据医学信息。";
  const mainEvidence=[...j.restricting_factors,...j.supporting_factors,...j.unresolved_factors]
@@ -278,6 +294,11 @@ function humanize(c,i,use,j,verified){
   if(x.id==="health_boundary")return "卦象没有医学判断能力，不能靠它推测病情。";
   if(x.id==="unverified_goal_direction")return "这类问题的好坏方向不能照搬普通求成问题的规则，相关的专业判断还没有验证完成。";
   if(x.id==="multi_motion")return "这张卦同时有多处变化，程序还没有完成它们相互作用的判断，不能按变化数量定结果。";
+  if(x.id.startsWith("active_office_"))return "工作相关的一爻自己发动了：这说明卦象里确实出现工作变化线索，不是毫无动静；但兼职是否到手仍要另看。";
+  if(x.id.startsWith("office_paper_void_"))return "这条工作相关动爻变化后的安排条件逢空，还不能按已经落实来理解。";
+  if(x.id==="self_move_void")return "代表你自己的一爻既发动又旬空，传统上提示本人承接条件还有不确定因素。";
+  if(x.id==="self_advance")return "代表你自己的一爻化进神，有推进的象义，但要跟其他条件一起判断。";
+  if(x.id==="self_change_month_clash")return "世爻变成的地支与当月相冲，这会限制仅凭进神就断定事情顺利。";
   if(x.id.startsWith("emerging_job_"))return "有一条动爻从沟通、安排一类事务转成工作相关的象义，像是先有人来接洽，再谈具体兼职，并不表示已经拿到了工作。";
   if(x.id.startsWith("emerging_support_"))return "这次变化有相互支持的传统线索，可作为机会推进的辅助依据。";
   if(x.id==="self_month_clash")return "代表你本人处境的爻受到当月冲动，传统上提示时间、安排等承接条件还可能有变数。";

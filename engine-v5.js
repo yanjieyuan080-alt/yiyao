@@ -240,6 +240,7 @@ function humanize(c,i,use,j,verified){
   insufficient_evidence:"这张卦关于"+scope+"的关键信息不够，暂时不能判断会不会发生。"
  }[j.status];
  let lead=verdict;
+ let scenarioWhy=null;
  if(isTime){
   const who=i.object.subtype==="promotion"?"你什么时候能升职":i.object.subtype==="appointment"?"你什么时候会得到正式任命":scope+"什么时候发生";
   lead="现在没有可靠依据判断"+who+"，不能给你编一个月份。"+
@@ -288,7 +289,7 @@ function humanize(c,i,use,j,verified){
            (selfChangeClash?"，但变爻又与月建相冲":"")+"，因此仍需看条件能否落实。");
       }
       if(delayed&&lineExample)reasons.push("动爻原文「"+originalLines[lineExample.i]+"」，传统上有延迟、等待的意味，不是一个月内必然成功的日期判断。");
-      why=reasons.slice(0,3);
+      scenarioWhy=reasons.slice(0,3);
     }
     if(hasEmerging||activeOffice)j.opportunity_stage=(paperworkVoid||selfVoid||selfChangeClash||hasClash)?"movement_with_unsettled_conditions":"movement_unconfirmed";
     j.reading_basis=activeOffice?"工作爻直接发动":hasEmerging?"父母等爻动化工作相关爻":"未见足够直接的新工作动象";
@@ -328,7 +329,8 @@ function humanize(c,i,use,j,verified){
  if(i.intent==="new_opportunity"&&i.object.subtype==="side_job"&&c.b.name.includes("屯")){
     why.push("变卦是「屯」，传统象义提示事情刚起步时可能需要反复协调；不能当成一个月内已能上岗的证据。");
  }
-  why=[...new Set(why)].slice(0,3);
+  if(scenarioWhy)why=scenarioWhy;
+ why=[...new Set(why)].slice(0,3);
  const brief="本卦"+c.a.name+(c.a.name!==c.b.name?"，变"+c.b.name:"（静卦）")+"。卦名和变卦只作传统象义参考，不能单凭卦名断成败。";
  const config=DOMAIN[i.field]||DOMAIN.general;
  const action=i.object.subtype==="side_job"?"留意是否有人明确询问你的档期、报价或合作范围；只有确定工作内容、报酬和开始时间，才算真正接到兼职":

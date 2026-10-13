@@ -340,11 +340,11 @@ function humanize(c,i,use,j,verified){
       if(indirect.length){
         const first=indirect[0], movingIndex=c.rows.find(r=>first.id==="indirect_process_"+r.i)?.i;
         const original=movingIndex===undefined?"":String(verified.origin.lines[movingIndex]||"");
-        const clue=/小有言/.test(original)?"动爻原文提到“小有言”，传统上可理解为沟通中有小分歧。":
+        const clue=/小有言/.test(original)?"动爻有“小有言，终吉”一类字句，传统上有短暂分歧后逐步缓和的象义；但不是兼职签成的保证。":
                    /愆期|迟归/.test(original)?"动爻原文也有等待、延期的传统象义。":"";
         lead="按这卦的传统象义，"+span+"有联系或安排变化的线索，但还看不出兼职一定能在期限内真正接成。"+
           (dayClash.length?"相关动爻受日冲，推进过程并不稳定。":"")+clue+
-          "本卦「"+c.a.name+"」变「"+c.b.name+"」，不能只凭卦名断定成功或失败。";
+          "本卦「"+c.a.name+"」偏向"+(old.themeOf?.(c.a.name)||"观察当前状况")+"，变卦「"+c.b.name+"」强调"+(old.themeOf?.(c.b.name)||"留意后续变化")+"。卦象描述的是传统过程象义，不能当作兼职成交保证。";
         scenarioWhy=[
           first.fact+"：外部或任务相关事务有所变化，可观察是否出现兼职沟通，但不是已经拿到工作。",
           ...(dayClash.length?[dayClash[0].fact+"：这属于传统上的冲动信息，不能机械地当作必败或必成。"]:[]),

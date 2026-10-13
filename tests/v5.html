@@ -1,0 +1,133 @@
+<!DOCTYPE html><html lang="zh-CN"><meta charset="UTF-8">
+<title>易爻 V5 综合判断与白话测试</title>
+<style>body{max-width:850px;margin:40px auto;font-family:system-ui,sans-serif;background:#f8f5ed;color:#253b30;padding:20px}
+pre{white-space:pre-wrap;background:#fff;padding:20px;border:1px solid #ccd8c9;border-radius:12px}</style>
+<h1>易爻 V5｜综合判断与白话测试</h1>
+<p>本测试只验证程序内部一致性和指定规则结果，不证明占卜预测准确。</p>
+<pre id="result">正在测试…</pre>
+<script src="../engine-v3.js?v=5.0.0"></script>
+<script src="../engine-v4.js?v=5.0.0"></script>
+<script src="../engine-v42.js?v=5.0.0"></script>
+<script src="../engine-v5.js?v=5.0.0"></script>
+<script>
+(async()=>{
+ const results=[],add=(label,good,detail="")=>results.push({label,pass:!!good,detail});
+ const thrown=[[3,3,2],[2,3,3],[2,3,2],[2,2,2],[3,3,3],[3,3,2]];
+ const animals=["白虎","玄武","青龙","朱雀","勾陈","螣蛇"];
+function sampleK(question="未来三个月我的事业走向是什么样的"){
+  const gz=["丙辰","丙午","丙申","戊申","戊戌","戊子"],vgz=["丙辰","丙午","丙申","庚午","庚申","庚戌"],
+   r=["父母","官鬼","兄弟","兄弟","父母","子孙"],vr=["父母","官鬼","兄弟","官鬼","兄弟","父母"];
+  const totals=[8,8,7,6,9,8],bits=totals.map(n=>n%2);
+  return {question,t:{day:"庚申"},throwing:thrown,totals,bits,changed:[0,0,1,1,0,0],
+   a:{name:"水山蹇",palace:"兑宫",home:"金",shi:4,ying:1},b:{name:"雷山小过"},
+   rows:gz.map((v,i)=>({i,gz:v,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===5})),empty:["子","丑"],month:"戌",day:"申"};
+ }
+function sampleY(question="接下来我还会进新的项目进来吗？"){
+  const gz=["庚子","庚寅","庚辰","丙戌","丙子","丙寅"],r=["父母","兄弟","妻财","妻财","父母","兄弟"],
+   throwing=[[2,3,2],[2,3,3],[3,3,2],[3,3,2],[3,3,2],[2,2,3]],totals=[7,8,8,8,8,7],bits=totals.map(n=>n%2);
+  return {question,t:{day:"庚申"},throwing,totals,bits,changed:bits.slice(),a:{name:"山雷颐",palace:"巽宫",home:"木",shi:4,ying:1},b:{name:"山雷颐"},
+    rows:gz.map((v,i)=>({i,gz:v,vgz:v,r:r[i],vr:r[i],animal:animals[i],empty:i===0||i===4})),empty:["子","丑"],month:"戌",day:"申"};
+ }
+function samplePromotion(question="什么时候能升职"){
+   const throwing=[[3,3,2],[3,3,3],[2,3,3],[2,2,2],[3,3,3],[2,3,2]],
+      totals=[8,9,8,6,9,7],bits=totals.map(n=>n%2),
+      gz=["戊寅","戊辰","戊午","辛未","辛巳","辛卯"],
+      vgz=["乙未","乙巳","乙卯","己酉","己未","己巳"],
+      r=["父母","子孙","兄弟","子孙","兄弟","父母"],
+      vr=["子孙","兄弟","父母","妻财","子孙","兄弟"];
+   return {question,t:{day:"庚申"},throwing,totals,bits,changed:[0,0,0,1,0,1],
+     a:{name:"风水涣",palace:"离宫",home:"火",shi:5,ying:2},b:{name:"火地晋"},
+     rows:gz.map((v,i)=>({i,gz:v,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:false})),
+     empty:["子","丑"],month:"戌",day:"申"};
+  }
+function sampleBigOver(){
+    const throwing=[[2,2,2],[2,2,3],[2,2,3],[2,2,3],[3,3,3],[2,2,2]],
+       totals=[6,7,7,7,9,6],bits=totals.map(n=>n%2),
+       gz=["辛丑","辛亥","辛酉","丁亥","丁酉","丁未"],
+       vgz=["甲子","甲寅","甲辰","己酉","己未","己巳"],
+       r=["妻财","父母","官鬼","父母","官鬼","妻财"],
+       vr=["父母","兄弟","妻财","官鬼","妻财","子孙"];
+    return {question:"未来五个月我的这份工作的发展会怎么样",t:{day:"庚申"},
+       throwing,totals,bits,changed:[1,1,1,1,0,1],
+       a:{name:"泽风大过",palace:"震宫",home:"木",shi:4,ying:1},
+       b:{name:"火天大有"},
+       rows:gz.map((v,i)=>({i,gz:v,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===0})),
+       empty:["子","丑"],month:"戌",day:"申"};
+  }
+function sampleQian(){
+    const throwing=[[2,2,2],[2,2,2],[2,2,3],[2,3,3],[3,2,3],[2,2,2]],
+      totals=[6,6,7,8,8,6],bits=totals.map(n=>n%2),
+      gz=["丙辰","丙午","丙申","癸丑","癸亥","癸酉"],
+      vgz=["甲子","甲寅","甲辰","丙戌","丙子","丙寅"],
+      r=["父母","官鬼","兄弟","父母","子孙","兄弟"],
+      vr=["子孙","妻财","父母","父母","子孙","妻财"];
+    return {question:"未来五个月我的这份工作的发展会怎么样",t:{day:"庚申"},
+      throwing,totals,bits,changed:[1,1,1,0,0,1],
+      a:{name:"地山谦",palace:"兑宫",home:"金",shi:5,ying:2},
+      b:{name:"山天大畜"},
+      rows:gz.map((value,i)=>({i,gz:value,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===3})),
+      empty:["子","丑"],month:"戌",day:"申"};
+  }
+ // 用独立校验可通过的基础排盘制造对照，不能当成真实用户起卦。
+ function sampleG(question="未来五个月会升职吗？"){
+ const throwing=[[2,2,2],[2,3,3],[2,2,3],[2,3,3],[2,3,3],[2,2,3]],
+ totals=throwing.map(x=>x.reduce((n,k)=>n+k,0)),bits=totals.map(n=>n%2);
+ const gz=["丙辰","丙午","丙申","丙戌","丙子","丙寅"],
+ vgz=["己卯","己丑","己亥","丙戌","丙子","丙寅"],
+ r=["兄弟","父母","子孙","兄弟","妻财","官鬼"],
+ vr=["官鬼","兄弟","妻财","兄弟","妻财","官鬼"];
+ return {question,t:{day:"庚申"},throwing,totals,bits,changed:[1,0,1,0,0,1],
+ a:{name:"艮为山",palace:"艮宫",home:"土",shi:6,ying:3},
+ b:{name:"山火贲"},
+ rows:gz.map((g,i)=>({i,gz:g,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===4})),
+ empty:["子","丑"],month:"戌",day:"申"};
+ }
+ const q=(fixture,question)=>{const c=fixture(question);c.question=question;return YiYaoEngineV5.interpret(c)};
+ try {
+ await YiYaoEngineV5.load();
+ const promotion=q(samplePromotion,"什么时候能升职");
+ add("晋升时间定位",promotion.intent.intent==="timing"&&promotion.intent.object.subtype==="promotion");
+ add("未显官鬼明确允许不确定",promotion.judgment.status==="insufficient_evidence");
+ add("没有硬编造晋升日期",promotion.answer.includes("没有可靠依据")&&!/一定在\d/.test(promotion.answer));
+ add("晋升主文白话与专业依据分层",promotion.html.includes("先说结论")&&promotion.html.includes("<details")&&!promotion.answer.includes("官鬼"));
+ const inFive=q(samplePromotion,"未来五个月会升职吗");
+ add("有时间范围不代表问趋势",inFive.intent.intent==="outcome"&&inFive.intent.window==="未来五个月");
+ add("降职可以正确识别",q(samplePromotion,"未来五个月会降职吗？").intent.object.subtype==="demotion");
+ add("正式任命可以正确识别",q(samplePromotion,"什么时候能得到正式任命？").intent.object.subtype==="appointment");
+ const stag=q(sampleY,"接下来还会有新的项目吗？");
+ add("新项目≠接项目",stag.intent.intent==="new_opportunity");
+ const take=q(sampleY,"这个新的项目我要不要接？");
+ add("接受已有项目独立识别",take.intent.intent==="accept_decision");
+ const g=q(sampleG,"未来五个月会升职吗？");
+ add("艮为山→山火贲严格排盘可核",g.ok&&g.judgment.selected?.gz==="丙寅");
+ add("申日冲寅：限制性线索",g.judgment.status==="restraining_signals"&&g.judgment.restricting_factors.some(x=>x.id==="day_clash"));
+ const good=q(sampleBigOver,"未来五个月我的事业会怎样？");
+ add("大过卦出现与上述不同的有利信号",good.judgment.status==="favorable_signals");
+ add("相同事业主题不同卦有不同判断",g.judgment.status!==good.judgment.status);
+ const conflicted=sampleG();conflicted.month="亥";
+ const mix=YiYaoEngineV5.interpret(conflicted);
+ add("月日信号冲突保留不确定",mix.judgment.status==="mixed_signals");
+ const unres=q(samplePromotion,"我现在会不会得到正式任命？");
+ add("多个动爻不代替用神判断",unres.judgment.status==="insufficient_evidence");
+ for(const [prompt,field] of [
+ ["我这个月的工资能到账吗？","finance"],
+ ["跟男朋友的感情以后会怎样？","relationship"],
+ ["我们合作还能继续吗？","cooperation"],
+ ["这个合同可以签吗？","property"],
+ ["这次考试能通过吗？","exam"],
+ ["最近身体是否健康？","health"],
+ ["这场官司什么时候结束？","legal"],
+ ["孩子的兴趣课程以后怎样？","children"]]){
+  const out=q(sampleBigOver,prompt);
+  add("全领域："+field,out.intent.field===field&&out.judgment&&out.answer.length>15);
+ }
+ const health=q(sampleBigOver,"我的身体健康会怎样？");
+ add("健康结论保留医疗边界",health.judgment.status==="insufficient_evidence"&&health.answer.includes("不能用卦象"));
+ const injected=sampleG();injected.a.shi=4;
+ try{YiYaoEngineV5.interpret(injected);add("错误世应拦截",false);}
+ catch(e){add("错误世应拦截",/世应/.test(String(e)));}
+ const display=results.map(x=>(x.pass?"PASS":"FAIL")+" "+x.label+(x.detail?" — "+x.detail:"")).join("\n");
+ document.getElementById("result").textContent=display+"\n\n通过："+results.filter(x=>x.pass).length+"/"+results.length;
+ }catch(e){document.getElementById("result").textContent=results.map(x=>(x.pass?"PASS":"FAIL")+" "+x.label).join("\n")+"\nFATAL "+(e.stack||e);}
+})();
+</script></html>

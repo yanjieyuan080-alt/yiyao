@@ -122,6 +122,9 @@ function evaluate(c,i,use){
  };
  const pos=r=>POS[r.i]+"爻";
  const sourceRows=primary==="世应"?[self,c.rows[c.a.ying-1]]:primary?c.rows.filter(r=>r.r===primary):[];
+ // 主用神不现，不等于应爻及相关辅助爻没有变化；只反映进程，不据此断成败。
+ const indirectMoves=!sourceRows.length&&i.field!=="health"?
+   mov.filter(r=>use.secondary.includes(r.r)||r.i===c.a.ying-1):[];
  let used=null,selectionReason="",coverage="partial";
  if(i.field==="health"){
   register("health_boundary","boundary","unresolved","所问涉及身体或疾病","不能从卦象判断健康状况、疾病性质、病程或康复时间",100);
@@ -225,6 +228,20 @@ function evaluate(c,i,use){
       }
    }
  }
+ if(indirectMoves.length){
+   for(const r of indirectMoves){
+     const asOther=r.i===c.a.ying-1,nm=pos(r)+" "+r.gz+r.r;
+     register("indirect_process_"+r.i,"process","neutral",nm+"发动化"+r.vgz+r.vr+(asOther?"（应爻）":""),
+       asOther?"外界或合作方对应的事务有变化象义，不能因此断定已有邀约":
+         "任务、沟通或手续对应的爻在变化，可观察是否有实际联系",85);
+     if(OPPOSITE[branch(c.day)]===branch(r.gz))
+       register("indirect_day_clash_"+r.i,"day","unresolved",nm+"被日辰"+c.day+"冲动",
+         "传统上有日冲线索，但须结合旺衰判断是催动还是受制",87);
+     if(c.empty.includes(branch(r.vgz)))
+       register("indirect_changed_void_"+r.i,"void","unresolved",pos(r)+"变爻"+r.vgz+r.vr+"旬空",
+         "间接变化的后续条件尚未坐实",83);
+   }
+ }
  const related=mov.filter(r=>use.secondary.includes(r.r) && (!used||r.i!==used.i));
  if(related.length)register("secondary_moving","secondary","neutral",related.map(r=>pos(r)+" "+r.gz+r.r).join("、")+"发动","辅助条件出现变化，但不能直接替代主用神的判断",25);
  if(mov.length>1)register("multi_motion","multi","unresolved",mov.map(r=>pos(r)).join("、")+"同时发动","完整多动爻连环作用尚未独立核验，不根据动爻数量推算吉凶",40);
@@ -236,6 +253,8 @@ function evaluate(c,i,use){
  if(requiresSpecialRule)register("unverified_goal_direction","method","unresolved","所问的结果不能直接套用一般的得利判断","这类事件需要专门的传统取用与吉凶映射规则，当前尚未独立核验",99);
  const strongUnresolved=unresolved.some(x=>["no_visible_primary","multiple_primary","health_boundary","unverified_goal_direction"].includes(x.id));
  let status="insufficient_evidence";
+ if(newCareerOpportunity&&i.object.subtype==="side_job"&&sourceRows.length===0&&indirectMoves.length)
+   status="process_moving_outcome_unknown";
  if(!strongUnresolved&&used){
   if(newCareerOpportunity&&contactSignals.length&&timingBlockers.length&&!negative.length)status="opportunity_unsettled";
   else if(conflict)status="mixed_signals";
@@ -261,6 +280,7 @@ function humanize(c,i,use,j,verified){
   restraining_signals:"目前看到的传统线索里，"+scope+"有一些明显阻力，但不等于一定失败。",
   mixed_signals:"与"+scope+"有关的线索有支持也有阻碍，这次还看不出明确方向。",
   opportunity_unsettled:"卦里有"+scope+"的变化象义，但能不能落实还有关键条件没有弄清楚。",
+  process_moving_outcome_unknown:"这张卦有联系或安排变化的传统线索，但还无法判断"+scope+"是否真能接成。",
   insufficient_evidence:"这张卦关于"+scope+"的关键信息不够，暂时不能判断会不会发生。"
  }[j.status];
  let lead=verdict;
@@ -315,7 +335,25 @@ function humanize(c,i,use,j,verified){
         (hasClash?"你这边的承接时间或条件也可能需要协调。":"")+
         (c.b.name.includes("屯")?"变卦「屯」有刚起步、推进不易的传统象义。":"");
     }else{
-      lead="从这张卦目前能核对的传统规则看，"+span+"还缺少明确的新兼职变化依据；不能据此认定一个月里必有或必无兼职。";
+      const indirect=j.contextual_factors.filter(x=>x.id.startsWith("indirect_process_"));
+      const dayClash=j.unresolved_factors.filter(x=>x.id.startsWith("indirect_day_clash_"));
+      if(indirect.length){
+        const first=indirect[0], movingIndex=c.rows.find(r=>first.id==="indirect_process_"+r.i)?.i;
+        const original=movingIndex===undefined?"":String(verified.origin.lines[movingIndex]||"");
+        const clue=/小有言/.test(original)?"动爻原文提到“小有言”，传统上可理解为沟通中有小分歧。":
+                   /愆期|迟归/.test(original)?"动爻原文也有等待、延期的传统象义。":"";
+        lead="按这卦的传统象义，"+span+"有联系或安排变化的线索，但还看不出兼职一定能在期限内真正接成。"+
+          (dayClash.length?"相关动爻受日冲，推进过程并不稳定。":"")+clue+
+          "本卦「"+c.a.name+"」变「"+c.b.name+"」，不能只凭卦名断定成功或失败。";
+        scenarioWhy=[
+          first.fact+"：外部或任务相关事务有所变化，可观察是否出现兼职沟通，但不是已经拿到工作。",
+          ...(dayClash.length?[dayClash[0].fact+"：这属于传统上的冲动信息，不能机械地当作必败或必成。"]:[]),
+          "本卦没有明现"+use.primary+"，伏神等规则还没完成验证，因此仅凭这些间接线索无法确定结果。"
+        ].slice(0,3);
+      }else{
+        lead="从这张卦当前已核验的传统规则看，"+span+
+          "暂缺明确的工作机会变化依据，不能判断期限内是否接得成兼职。";
+      }
     }
     if(activeOffice){
       const office=c.rows.find(r=>j.supporting_factors.some(x=>x.id==="active_office_"+r.i));
@@ -384,7 +422,7 @@ function render(c,i,use,j,h,verified){
  const movers=c.rows.filter(r=>[6,9].includes(c.totals[r.i]));
  const movedText=movers.length?movers.map(r=>POS[r.i]+"爻「"+lines[r.i]+"」").join("；"):"本次没有动爻。";
  const sub=(label,arr)=>arr.length?"<h4>"+ESC(label)+"</h4><ul>"+arr.map(x=>"<li>"+ESC(x.fact)+" — "+ESC(x.meaning)+" <small>["+ESC(x.id)+"]</small></li>").join("")+"</ul>":"";
- return '<div class="focus-report yiyan-v5" data-engine="5.2.1">'+
+ return '<div class="focus-report yiyan-v5" data-engine="5.3.0">'+
  '<div class="section-title">先说结论</div><p class="v5-lead"><strong>'+ESC(h.headline)+'</strong></p>'+
  '<div class="section-title">为什么这样说</div><ol class="v5-why">'+h.why.map(x=>"<li>"+ESC(x)+"</li>").join("")+"</ol>"+
  '<div class="section-title">接下来最值得关注什么</div>'+paragraph(h.action)+
@@ -404,7 +442,7 @@ function interpret(c){
  const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
-  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.2.1"};
+  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.3.0"};
 }
-g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.2.1"};
+g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.3.0"};
 })(window);

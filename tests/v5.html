@@ -7,8 +7,8 @@ pre{white-space:pre-wrap;background:#fff;padding:20px;border:1px solid #ccd8c9;b
 <pre id="result">正在测试…</pre>
 <script src="../engine-v3.js?v=5.0.0"></script>
 <script src="../engine-v4.js?v=5.0.0"></script>
-<script src="../engine-v42.js?v=5.0.0"></script>
-<script src="../engine-v5.js?v=5.2.0"></script>
+<script src="../engine-v42.js?v=5.3.0"></script>
+<script src="../engine-v5.js?v=5.3.0"></script>
 <script>
 (async()=>{
  const results=[],add=(label,good,detail="")=>results.push({label,pass:!!good,detail});
@@ -191,6 +191,35 @@ function sampleQian(){
  add("新旧兼职卦象综合结果不同",newSide.judgment.status!==side.judgment.status&&newSide.answer!==side.answer);
  const differentQuestion=YiYaoEngineV5.interpret(incomingPartTimeQ("这个已经介绍给我的兼职要不要接？"));
  add("已有兼职是否接受不得错判新机会",differentQuestion.intent.intent==="accept_decision");
+
+ // 2026-10-13 17:35 用户实际提问：未来三个月能接到兼职吗？天水讼→天泽履，初爻动。
+ function officialHiddenSideJob(question="未来三个月能接到兼职吗？"){
+  const throwing=[[2,2,2],[2,3,2],[2,3,3],[2,3,2],[2,2,3],[2,3,2]],
+   totals=throwing.map(x=>x.reduce((a,b)=>a+b,0)),bits=totals.map(x=>x%2),
+   gz=["戊寅","戊辰","戊午","壬午","壬申","壬戌"],
+   vgz=["丁巳","丁卯","丁丑","壬午","壬申","壬戌"],
+   k=["父母","子孙","兄弟","兄弟","妻财","子孙"],
+   vk=["兄弟","父母","子孙","兄弟","妻财","子孙"];
+  return {question,t:{day:"庚申"},throwing,totals,bits,changed:[1,1,0,1,1,1],
+   a:{name:"天水讼",palace:"离宫",home:"火",shi:4,ying:1},b:{name:"天泽履"},
+   rows:gz.map((g,i)=>({i,gz:g,vgz:vgz[i],r:k[i],vr:vk[i],animal:animals[i],empty:false})),
+   empty:["子","丑"],month:"戌",day:"申"};
+ }
+ const hidden=YiYaoEngineV5.interpret(officialHiddenSideJob());
+ add("讼→履：初六发动实际卦象一致",hidden.ok&&hidden.html.includes("天水讼")&&hidden.html.includes("天泽履"));
+ add("隐官兼职问法和三个月时间识别",hidden.intent.intent==="new_opportunity"&&hidden.intent.object.subtype==="side_job"&&hidden.intent.window==="未来三个月");
+ add("无明官但应爻父母动不再被忽略",hidden.judgment.contextual_factors.some(x=>x.id==="indirect_process_0"&&x.fact.includes("戊寅父母")));
+ add("寅受申日冲参与分析",hidden.judgment.unresolved_factors.some(x=>x.id==="indirect_day_clash_0"&&x.fact.includes("申")));
+ add("辅助动爻只能判断进程不能判兼职已成",hidden.judgment.status==="process_moving_outcome_unknown"&&hidden.answer.includes("不能"));
+ add("三个月答案不能再写一个月",hidden.answer.includes("未来三个月")&&!hidden.answer.includes("一个月"));
+ add("初六小有言终吉实际爻辞进入解读",hidden.answer.includes("小有言")&&hidden.answer.includes("分歧"));
+ add("讼履两卦传统主题区别进入结论",hidden.answer.includes("分歧")&&hidden.answer.includes("谨慎"));
+ add("白话解释说清卦盘原因",hidden.explanation[0].includes("应爻")&&hidden.explanation[1].includes("日辰申"));
+ add("主用神官鬼不现不得凭空造官鬼发动",!hidden.judgment.supporting_factors.some(x=>x.id.startsWith("active_office_")));
+ const hiddenStatic=q(sampleY,"未来三个月能接到兼职吗？");
+ add("无用神且无相关动爻时不伪造接洽",hiddenStatic.judgment.status==="insufficient_evidence"&&!hiddenStatic.answer.includes("有联系或安排变化的线索"));
+ const hiddenOne=YiYaoEngineV5.interpret(officialHiddenSideJob("未来一个月能接到兼职吗？"));
+ add("同一卦不同提问期限完整保留",hiddenOne.intent.window==="未来一个月"&&hiddenOne.answer.includes("未来一个月")&&!hiddenOne.answer.includes("未来三个月"));
  const health=q(sampleBigOver,"我的身体健康会怎样？");
  add("健康结论保留医疗边界",health.judgment.status==="insufficient_evidence"&&health.answer.includes("不能用卦象"));
  const injected=sampleG();injected.a.shi=4;

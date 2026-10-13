@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><title>易爻 V4.2 规则驱动回归测试</title>
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:40px auto;padding:16px;background:#102018;color:#f0e8d2}h1{font-size:24px}pre{line-height:1.65;white-space:pre-wrap;border:1px solid #566;padding:20px;border-radius:10px}.pass{color:#8ed19a}.fail{color:#ffa29a}</style>
+<h1>易爻 V4.2 · 回归测试</h1>
+<p>此页校验实际卦盘、问题意图、结论一致性与跨领域差异。通过不代表预测准确。</p><pre id="report">加载中…</pre>
+<script src="../engine-v3.js"></script>
+<script src="../engine-v4.js?v=4.1.1"></script>
+<script src="../engine-v42.js?v=4.2.0"></script>
+<script>
+(async()=>{
+ const tests=[], add=(label,pass,detail="")=>tests.push({label,pass:!!pass,detail});
+ const thrown=[[3,3,2],[2,3,3],[2,3,2],[2,2,2],[3,3,3],[3,3,2]];
+ const animals=["白虎","玄武","青龙","朱雀","勾陈","螣蛇"];
+ function sampleK(question="未来三个月我的事业走向是什么样的"){
+  const gz=["丙辰","丙午","丙申","戊申","戊戌","戊子"],vgz=["丙辰","丙午","丙申","庚午","庚申","庚戌"],
+   r=["父母","官鬼","兄弟","兄弟","父母","子孙"],vr=["父母","官鬼","兄弟","官鬼","兄弟","父母"];
+  const totals=[8,8,7,6,9,8],bits=totals.map(n=>n%2);
+  return {question,t:{day:"庚申"},throwing:thrown,totals,bits,changed:[0,0,1,1,0,0],
+   a:{name:"水山蹇",palace:"兑宫",home:"金",shi:4,ying:1},b:{name:"雷山小过"},
+   rows:gz.map((v,i)=>({i,gz:v,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:i===5})),empty:["子","丑"],month:"戌",day:"申"};
+ }
+ function sampleY(question="接下来我还会进新的项目进来吗？"){
+  const gz=["庚子","庚寅","庚辰","丙戌","丙子","丙寅"],r=["父母","兄弟","妻财","妻财","父母","兄弟"],
+   throwing=[[2,3,2],[2,3,3],[3,3,2],[3,3,2],[3,3,2],[2,2,3]],totals=[7,8,8,8,8,7],bits=totals.map(n=>n%2);
+  return {question,t:{day:"庚申"},throwing,totals,bits,changed:bits.slice(),a:{name:"山雷颐",palace:"巽宫",home:"木",shi:4,ying:1},b:{name:"山雷颐"},
+    rows:gz.map((v,i)=>({i,gz:v,vgz:v,r:r[i],vr:r[i],animal:animals[i],empty:i===0||i===4})),empty:["子","丑"],month:"戌",day:"申"};
+ }
+ try{
+  await YiYaoEngineV42.load();
+  const k=YiYaoEngineV42.interpret(sampleK());
+  add("蹇→小过：正确排盘并展示真实动爻",k.verified.includes("水山蹇")&&k.answer.includes("四爻")&&k.answer.includes("五爻"));
+  add("蹇→小过：世兄弟发动回头克",k.answer.includes("回头克")&&k.answer.includes("戊申兄弟"));
+  add("蹇→小过：没有虚构官鬼持世",!k.answer.includes("官鬼持世")&&!k.html.includes("官鬼持世"));
+  add("蹇→小过：与卦义和动爻相关",k.answer.includes("前行受阻")&&k.answer.includes("大蹇朋来"));
+  const y=YiYaoEngineV42.interpret(sampleY());
+  add("颐静卦：新机会而不是接项目",y.intent.intent==="new_opportunity"&&!y.answer.includes("承接之后"));
+  add("颐静卦：无动爻+父母旬空",y.answer.includes("六爻安静")&&y.signals.some(s=>s.kind==="void"));
+  add("同一问题不同卦：结论不同",YiYaoEngineV42.interpret(sampleK(sampleY().question)).answer!==y.answer);
+  const cases=[
+  ["未来三个月这份工作怎么发展？","career"],
+  ["未来三个月我会增加收入吗？","finance"],
+  ["我和男朋友的感情会怎样？","relationship"],
+  ["这份房屋合同能顺利签吗？","property"],
+  ["我和合作伙伴还能继续合作吗？","cooperation"],
+  ["孩子的兴趣培养以后会怎样？","children"],
+  ["最近身体健康如何？","health"],
+  ["官司会不会出现变化？","legal"],
+  ["这次考试可以通过吗？","exam"]];
+  const domains=[];
+  for(const [q,field] of cases){const o=YiYaoEngineV42.interpret(sampleK(q));add("领域："+field,o.intent.field===field&&o.answer.includes(o.intent.field==="career"?"职责、项目安排":o.intent.field==="finance"?"财务":o.intent.field==="relationship"?"关系":"")&&o.answer.length>60,o.intent.field);domains.push(o.answer);}
+  add("同卦不同领域：内容不一致",new Set(domains).size===domains.length);
+  add("健康不做诊断",YiYaoEngineV42.interpret(sampleK("最近身体健康如何？")).html.includes("不通过卦象诊断"));
+  const corrupt=sampleK();corrupt.a.shi=2;
+  try {YiYaoEngineV42.interpret(corrupt);add("错误世应必须阻止或复核",false,"原有 V4 verify 未独立核对世应");}
+  catch(e){add("错误世应必须阻止或复核",true,String(e));}
+ }catch(e){add("执行过程",false,e.stack||String(e));}
+ document.getElementById("report").textContent=tests.map(x=>(x.pass?"PASS":"FAIL")+" "+x.label+(x.detail?" — "+x.detail:"")).join("\n")+"\n\n通过 "+tests.filter(x=>x.pass).length+" / "+tests.length;
+})();
+</script></html>

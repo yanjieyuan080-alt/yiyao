@@ -8,6 +8,9 @@ const GENERATES={木:"火",火:"土",土:"金",金:"水",水:"木"};
 const CONTROLS={木:"土",土:"水",水:"火",火:"金",金:"木"};
 const OPPOSITE={子:"午",丑:"未",寅:"申",卯:"酉",辰:"戌",巳:"亥",午:"子",未:"丑",申:"寅",酉:"卯",戌:"辰",亥:"巳"};
 const POS=["初","二","三","四","五","上"];
+const ADVANCE={寅:"卯",巳:"午",申:"酉",亥:"子",丑:"辰",辰:"未",未:"戌",戌:"丑"};
+const MONTH_BREAK=OPPOSITE;
+
 const ESC=s=>String(s??"").replace(/[&<>"']/g,x=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x]));
 const paragraph=s=>"<p>"+ESC(s)+"</p>";
 const DOMAIN={
@@ -143,9 +146,39 @@ function evaluate(c,i,use){
  if(self){
   register("self_state","self","neutral",POS[self.i]+"爻 "+self.gz+self.r+"持世"+(mov.some(r=>r.i===self.i)?"并发动":"，未发动"),"代表本人处境，应与所问用神分开观察",30);
  }
- // 新工作、新兼职：观察“任务/联系/文书一爻发动，化为职位/工作一爻”。
- // 该象义与正式录用或实际到岗不同，不能单独推导必成。
+ // 所有新工作机会均需先看现有官鬼是否发动，而不能只识别“父母动化官鬼”。
  const newCareerOpportunity=i.field==="career"&&i.intent==="new_opportunity";
+ if(newCareerOpportunity){
+   const activeOffices=mov.filter(r=>r.r==="官鬼");
+   for(const r of activeOffices){
+      register("active_office_"+r.i,"new_opportunity","positive",pos(r)+" "+r.gz+"官鬼发动",
+        "代表工作事项的主用神本身发生变化；属于工作机会相关的传统动象，不能直接等同于工作已落实",92);
+      if(r.vr==="父母"){
+        register("office_to_paper_"+r.i,"new_opportunity","neutral",pos(r)+" "+r.gz+"官鬼化"+r.vgz+"父母",
+          "工作相关事项转向沟通、安排或文书条件；这里只是传统六亲象义，不代表已经拿到合同",73);
+        if(c.empty.includes(branch(r.vgz))){
+           register("office_paper_void_"+r.i,"new_opportunity","unresolved",pos(r)+" 官鬼化"+r.vgz+"父母，变爻旬空",
+             "工作相关安排的后续条件存在尚未落实的象义，不能仅凭发动就断定一个月内成事",88);
+        }
+      }
+   }
+   if(mov.some(r=>r.i===self.i)){
+     register("self_active","self","neutral",pos(self)+" "+self.gz+self.r+"持世发动化"+self.vgz+self.vr,
+       "本人这边也有变化，需观察是否能承接新安排",65);
+     if(c.empty.includes(branch(self.gz))){
+       register("self_move_void","self","unresolved",pos(self)+" "+self.gz+self.r+"旬空且发动",
+         "本人相关安排的传统条件还不够稳，不宜认作机会已落实",86);
+     }
+     if(ADVANCE[branch(self.gz)]===branch(self.vgz)){
+       register("self_advance","self","positive",pos(self)+" "+self.gz+"化"+self.vgz+"，丑辰等同类进神关系",
+         "按常见进退神规则，此变动有逐步推进的象义；但需结合旬空和日月冲克核查，不可直接作成功判断",72);
+     }
+     if(MONTH_BREAK[branch(c.month)]===branch(self.vgz)){
+       register("self_change_month_clash","self","unresolved","变世爻"+self.vgz+"与月建"+c.month+"相冲",
+         "变爻还受当月冲动的制约，进神或变化象义不能单独认定已经成功",84);
+     }
+   }
+ }
  if(newCareerOpportunity){
    const emerging=mov.filter(r=>r.vr==="官鬼"&&r.r!=="官鬼");
    for(const r of emerging){
@@ -171,7 +204,10 @@ function evaluate(c,i,use){
  const related=mov.filter(r=>use.secondary.includes(r.r) && (!used||r.i!==used.i));
  if(related.length)register("secondary_moving","secondary","neutral",related.map(r=>pos(r)+" "+r.gz+r.r).join("、")+"发动","辅助条件出现变化，但不能直接替代主用神的判断",25);
  if(mov.length>1)register("multi_motion","multi","unresolved",mov.map(r=>pos(r)).join("、")+"同时发动","完整多动爻连环作用尚未独立核验，不根据动爻数量推算吉凶",40);
- const conflict=positive.length>0&&negative.length>0;
+ // 对问题所涉事件，“机会动象”与“是否已经落实”的证据分开记录。
+ const contactSignals=positive.filter(x=>x.id.startsWith("emerging_job_")||x.id.startsWith("active_office_"));
+ const timingBlockers=unresolved.filter(x=>x.id==="self_move_void"||x.id.startsWith("office_paper_void_")||x.id==="self_change_month_clash");
+ const conflict=positive.length>0&&(negative.length>0||contactSignals.length>0&&timingBlockers.length>0);
  const requiresSpecialRule=i.object.subtype==="demotion"||i.object.subtype==="breakup"||i.field==="legal";
  if(requiresSpecialRule)register("unverified_goal_direction","method","unresolved","所问的结果不能直接套用一般的得利判断","这类事件需要专门的传统取用与吉凶映射规则，当前尚未独立核验",99);
  const strongUnresolved=unresolved.some(x=>["no_visible_primary","multiple_primary","health_boundary","unverified_goal_direction"].includes(x.id));
@@ -190,7 +226,8 @@ function evaluate(c,i,use){
   restricting_factors:negative.sort((a,b)=>b.priority-a.priority),
   unresolved_factors:unresolved.sort((a,b)=>b.priority-a.priority),
   contextual_factors:neutral.sort((a,b)=>b.priority-a.priority),
-  conflict,limitations:limit,question:i.question,domain:i.field,subtype:i.object.subtype,time_window:i.window};
+  conflict,opportunity_signals:contactSignals.map(x=>x.id),realization_constraints:timingBlockers.map(x=>x.id),
+  limitations:limit,question:i.question,domain:i.field,subtype:i.object.subtype,time_window:i.window};
 }
 function humanize(c,i,use,j,verified){
  const scope=use.topic, isTime=i.intent==="timing", scopeTerm=i.window!=="未明确时间范围"?i.window+"内":"";

@@ -32,6 +32,30 @@ legal:{label:"纠纷与法律",topic:"证据、程序与结果",roles:{"官鬼":
 health:{label:"健康（民俗）",topic:"健康话题的传统象义",roles:{"官鬼":"传统病象","子孙":"传统缓解病象","父母":"照护","兄弟":"消耗","妻财":"资源"},primary:["官鬼","子孙"],risk:"不通过卦象诊断病情或推测康复；身体不适应寻求专业医疗评估"},
 general:{label:"综合事项",topic:"所问事项的发展",roles:{"官鬼":"责任与约束","父母":"条件和文书","妻财":"资源与收益","兄弟":"协作与消耗","子孙":"产出与舒缓"},primary:["官鬼","父母","妻财"],risk:"补充具体对象和评价标准有助于辨别现实问题"}
 };
+
+/* 独立于现有 detail() 的八宫与世应校验。 */
+const PALACE_BITS={乾:[1,1,1],兑:[1,1,0],离:[1,0,1],震:[1,0,0],巽:[0,1,1],坎:[0,1,0],艮:[0,0,1],坤:[0,0,0]};
+const PALACE_ELEMENTS={乾:"金",兑:"金",离:"火",震:"木",巽:"木",坎:"水",艮:"土",坤:"土"};
+const GOLD=new Map();
+for(const [pal,trigram] of Object.entries(PALACE_BITS)){
+ let bits=[...trigram,...trigram];const entries=[];
+ const add=(shi,ying,stage)=>entries.push({bits:bits.join(""),palace:pal,shi,ying,stage});
+ add(6,3,"本宫");
+ for(let i=0;i<5;i++){bits[i]=1-bits[i];add(i+1,((i+3)%6)+1,(i+1)+"世");}
+ bits[3]=1-bits[3];add(4,1,"游魂");
+ for(let i=0;i<3;i++)bits[i]=trigram[i];add(3,6,"归魂");
+ entries.forEach(entry=>{if(GOLD.has(entry.bits))throw Error("八宫金标准出现重叠："+entry.bits);GOLD.set(entry.bits,entry);});
+}
+if(GOLD.size!==64)throw Error("八宫金标准不完整："+GOLD.size);
+function verify42(c){
+ const legacy=core.verify(c),entry=GOLD.get(c.bits.join(""));
+ if(!entry)throw Error("本卦无法归属八宫");
+ const name=String(c.a.palace||"").replace(/宫$/,"");
+ if(name!==entry.palace||c.a.shi!==entry.shi||c.a.ying!==entry.ying||c.a.home!==PALACE_ELEMENTS[entry.palace])
+  throw Error("八宫、世应或本宫五行与独立校验不符："+entry.palace+"宫 "+entry.stage+"（世"+entry.shi+"应"+entry.ying+"）");
+ return {...legacy,palaceCheck:entry};
+}
+
 const esc=s=>String(s).replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]));
 const p=s=>"<p>"+esc(s)+"</p>";
 function relation(from,to){
@@ -125,6 +149,7 @@ function summarize(c,base,info){
  return {answer,state,evidence,heading:opening,conclusion:opening,limit:fixed};
 }
 function interpret(c){
+ verify42(c);
  const base=core.interpret(c);
  const info=collect(c,base),story=summarize(c,base,info),intent=base.intent;
  const detail=info.signals.map(x=>'<div class="v42-evidence"><strong>'+esc(x.title)+'</strong>'+p("卦盘事实："+x.fact)+p("传统规则："+x.rule)+p("解释："+x.meaning)+'</div>').join("");
@@ -142,5 +167,5 @@ function interpret(c){
  if(info.self.r!=="兄弟"&&/兄弟持世/.test(result.answer+result.html))throw Error("结论与卦盘冲突：并非兄弟持世");
  return result;
 }
-g.YiYaoEngineV42={load:()=>core.load(),verify:c=>core.verify(c),identify:q=>core.identify(q),interpret,version:"4.2.0"};
+g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,version:"4.2.0"};
 })(window);

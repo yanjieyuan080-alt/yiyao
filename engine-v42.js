@@ -19,6 +19,8 @@ const LINE_GLOSSES={
  "山火贲":{4:"贲如皤如：合作中的疑虑与误解需要辨明",5:"贲于丘园：重视朴实的实际投入"},
  "天火同人":{4:"乘其墉，弗克攻：遇到矛盾时不宜一味强攻",6:"同人于郊：保持适当距离与合作边界"},
  "雷风恒":{4:"田无禽：投入若方向不合适，努力可能难获预期回报"},
+ "地山谦":{1:"谦谦君子，用涉大川：以谦逊、充分准备开展事务，利于稳步承担挑战",2:"鸣谦，贞吉：坚持稳健做事、言行一致，传统象义有形成认可的意味",6:"鸣谦，利用行师，征邑国：强调适当组织行动、治理自身职责范围内的问题，不宜无边界扩大行动"},
+
  "泽风大过":{1:"藉用白茅：先把承接条件准备稳妥，谨慎可以避免过失",5:"枯杨生华，无咎无誉：虽有局部新机，未必等于持久成果或明确认可",6:"过涉灭顶，凶，无咎：明显的过度承担风险警示，无咎不等于没有代价"}
 };
 const CONTEXT={
@@ -82,10 +84,10 @@ function lineWarn(text){
 }
 function directionText(from,to){
  const r=relation(from,to);
- if(r==="生出")return from+"生"+to+"（后者受生）";
- if(r==="受生")return to+"生"+from+"（前者受生）";
- if(r==="克出")return from+"克"+to+"（后者受克）";
- if(r==="受克")return to+"克"+from+"（前者受克）";
+ if(r==="生出")return from+"生"+to+"（"+to+"受生）";
+ if(r==="受生")return to+"生"+from+"（"+from+"受生）";
+ if(r==="克出")return from+"克"+to+"（"+to+"受克）";
+ if(r==="受克")return to+"克"+from+"（"+from+"受克）";
  if(r==="同气")return from+"与"+to+"同五行";
  return from+"与"+to+"作用关系未识别";
 }
@@ -164,6 +166,10 @@ function summarize(c,base,info){
  else if(goal==="outcome")verdict+="有关用神"+(useMove.length?"出现发动":"未直接发动")+"，但不支持断定事情必成或必败。";
  else if(goal==="risk")verdict+="需要综合动爻原文与受制条件，而不是只看变卦是否吉利。";
  if(warningLines.length)verdict+="但"+warningLines.map(t=>position(t.position-1)).join("、")+"存在明确的警示爻辞，不能只因变卦较积极就断定一切顺利。";
+ if(!warningLines.length && LINE_GLOSSES[old] && (goal==="trend"||goal==="risk")){
+  const focused=base.lineTexts.map(t=>LINE_GLOSSES[old]?.[t.position]).filter(Boolean);
+  if(focused.length)verdict+="其中动爻更强调："+focused.join("；")+"。";
+ }
  const coreSentences=[];
  if(isSelfMoving){
   const sr=moved.find(r=>r.i===si);
@@ -186,7 +192,11 @@ function summarize(c,base,info){
  }).join("；");
  let risks=warningLines.length?"本卦存在不能忽略的风险爻辞："+warnings+"。"+
    (warnGlos.length?warnGlos.join("；")+"。":"它与其他可能有利的动变需要同时考虑，不能只看变卦。"):"";
- if(!risks)risks=moved.length?"注意分别核对本卦变化的可能收益与其实现条件。":"静卦无动爻，不应强行判断必然发生某项变化。";
+ if(!risks){
+  const interpretations=base.lineTexts.map(t=>LINE_GLOSSES[old]?.[t.position]).filter(Boolean);
+  if(interpretations.length)risks="动爻象义提示："+interpretations.join("；")+"。需要结合变卦「"+changed+"」的主题检验实际条件。";
+  else risks=moved.length?"变化可能提供新机会，也可能带来新条件；需要区分已落实的支持与尚未确认的安排。":"静卦无动爻，不应强行判断必然发生某项变化。";
+ }
  risks+="现实中："+config.risk+"。";
  const time=goal==="trend"||goal==="timing"?"所问时间："+yearWindow+"。此处是用户给定的观察范围，不是动爻推算出的事件日期。":"";
  const answer=verdict+"\n"+corePara+"\n"+(classics?"动爻依据："+classics+"。\n":"")+"风险与条件："+risks+(time?"\n"+time:"");
@@ -198,18 +208,18 @@ function interpret(c){
  const info=collect(c,base),story=summarize(c,base,info),intent=base.intent;
  const detail=info.signals.map(x=>'<div class="v42-evidence"><strong>'+esc(x.title)+'</strong>'+p("卦盘事实："+x.fact)+p("传统规则："+x.rule)+p("解释："+x.meaning)+'</div>').join("");
  const lineText=base.lineTexts.length?base.lineTexts.map(l=>p(position(l.position-1)+"："+l.text)).join(""):p("无动爻。本卦不据此断定事件必不发生。");
- const html='<div class="focus-report" data-engine="4.2.1"><div class="section-title">问题与分析范围</div>'+p(intent.question+"｜"+intent.fieldName+"｜"+intent.intent+"｜"+intent.window)+
+ const html='<div class="focus-report" data-engine="4.2.2"><div class="section-title">问题与分析范围</div>'+p(intent.question+"｜"+intent.fieldName+"｜"+intent.intent+"｜"+intent.window)+
  '<div class="section-title">直接回答</div>'+story.answer.split("\n").map(p).join("")+
  '<div class="section-title">本卦、变卦与卦辞</div>'+p(c.a.name+" → "+c.b.name+"；动爻："+(info.moved.map(r=>position(r.i)).join("、")||"无")+"；卦辞："+core.verify(c).origin.judgment)+
  '<div class="section-title">决定分析重点的卦盘依据</div>'+detail+
  '<div class="section-title">动爻经文（原文）</div>'+lineText+
  ((intent.intent==="timing"||intent.intent==="trend")?'<div class="section-title">时间判断边界</div>'+p("暂无经独立验证的传统应期依据，不能据此推断某月某日必然发生相关事件。"):"")+
  '<div class="section-title">现实核验与风险</div>'+p(info.config.risk)+
- '<p class="sub">易爻 V4.2.1：规则可追溯的传统文化辅助解读。伏神飞神、复杂旺衰、墓绝及多动连环作用尚未达到专业完整验收；健康、法律和重大财务问题以现实证据和专业意见为准。本工具不提供可靠的未来预测。</p></div>';
- const result={...base,html,answer:story.answer,signals:info.signals,conclusion:story.conclusion,interpretationVersion:"4.2.1"};
+ '<p class="sub">易爻 V4.2.2：规则可追溯的传统文化辅助解读。伏神飞神、复杂旺衰、墓绝及多动连环作用尚未达到专业完整验收；健康、法律和重大财务问题以现实证据和专业意见为准。本工具不提供可靠的未来预测。</p></div>';
+ const result={...base,html,answer:story.answer,signals:info.signals,conclusion:story.conclusion,interpretationVersion:"4.2.2"};
  if(info.self.r!=="官鬼"&&/官鬼持世/.test(result.answer+result.html))throw Error("结论与卦盘冲突：并非官鬼持世");
  if(info.self.r!=="兄弟"&&/兄弟持世/.test(result.answer+result.html))throw Error("结论与卦盘冲突：并非兄弟持世");
  return result;
 }
-g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,version:"4.2.1"};
+g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,version:"4.2.2"};
 })(window);

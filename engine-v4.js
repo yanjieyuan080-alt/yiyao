@@ -34,7 +34,8 @@ function getRelation(a,b){if(a===b)return "临";if(clash[a]===b)return "冲";if(
 function fields(q){
 const raw=String(q||"").trim();if(!raw)return {ok:false,error:"请先输入一个具体问题"};
 const clean=raw.replace(/\s+/g,"");
-const base=g.YiYaoEngineV3.identify(raw);\nif(/合作机会|商业合作|合作方/.test(raw)){base.ok=true;base.field="cooperation";base.fieldName="合作与竞争";}
+const base=g.YiYaoEngineV3.identify(raw);
+if(/合作机会|商业合作|合作方/.test(raw)){base.ok=true;base.field="cooperation";base.fieldName="合作与竞争";}
 if(!base.ok)return base;
 const opportunity=/(还会|会不会|是否|有没有|能不能|能否|将会|未来|接下来|接着|之后|近期|最近|有机会|出现|迎来|获得|分配|安排|来|进)/.test(clean)&&/(新的?|其他|更多|下一[个份次]?)/.test(clean)&&/(项目|工作|机会|合作|客户|业务|订单|岗位|职位|面试|房源|感情|对象|收入|财源)/.test(clean)&&!/(该不该接|要不要接|接了|接手后|如果我接|拒绝|不接)/.test(clean);
 const accept=/(该不该接|要不要接|是否接受|接不接|如果.*接(了|手|下)?|接了(这个|它)?|接手(这个|后)?|值得接)/.test(clean)&&!opportunity;

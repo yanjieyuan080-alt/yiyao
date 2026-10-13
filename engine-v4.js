@@ -11,8 +11,10 @@ const advance={"寅":"卯","巳":"午","申":"酉","亥":"子","丑":"辰","辰"
 const graves={木:"未",火:"戌",土:"辰",金:"丑",水:"辰"};
 const esc=x=>String(x).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 let corpus=null, maps=null;
+// 使用引擎脚本位置而非当前页面位置，支持网站首页与 /tests/ 目录共用数据。
+const assetBase=(typeof document!=="undefined"&&document.currentScript?.src)?new URL(".",document.currentScript.src).href:"./";
 function fromBits(bits){let low=order.find(k=>trigrams[k].every((v,i)=>v===bits[i]));let high=order.find(k=>trigrams[k].every((v,i)=>v===bits[i+3]));return [high,low]}
-async function load(){if(corpus)return corpus;const response=await fetch("./data/classics.json?v=4.0.0",{cache:"no-store"});if(!response.ok)throw Error("卦辞数据库未加载（HTTP "+response.status+"）");const j=await response.json();if(Object.keys(j.hexagrams||{}).length!==64||Object.values(j.hexagrams).some(x=>!Array.isArray(x.lines)||x.lines.length!==6||!x.judgment))throw Error("64卦或384条爻辞校验失败");corpus=j.hexagrams;maps=new Map(Object.entries(corpus).map(([id,x])=>[x.name,{id,...x}]));if(maps.size!==64)throw Error("出现重复卦名");return corpus}
+async function load(){if(corpus)return corpus;const response=await fetch(assetBase+"data/classics.json?v=4.2.0",{cache:"no-store"});if(!response.ok)throw Error("卦辞数据库未加载（HTTP "+response.status+"）");const j=await response.json();if(Object.keys(j.hexagrams||{}).length!==64||Object.values(j.hexagrams).some(x=>!Array.isArray(x.lines)||x.lines.length!==6||!x.judgment))throw Error("64卦或384条爻辞校验失败");corpus=j.hexagrams;maps=new Map(Object.entries(corpus).map(([id,x])=>[x.name,{id,...x}]));if(maps.size!==64)throw Error("出现重复卦名");return corpus}
 function verify(c){
 if(!corpus)throw Error("经典数据库尚未加载");
 const bits=c.bits, changed=c.changed;

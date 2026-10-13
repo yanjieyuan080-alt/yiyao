@@ -31,7 +31,9 @@ function question(q,requestedDomain){
  const demotion=/(降职|降级|被贬|下调职级|被撤职|免职)/.test(cleaned);
  const official=/(正式任命|职位任命|职务任命|被任命为|得到任命)/.test(cleaned);
  const breakup=/(分手|离婚|断联|彻底分开)/.test(cleaned);
- const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":base.object?.subtype||"general";
+ const hiringPartTimer=/(招聘兼职|招兼职|兼职员工|兼职人员|兼职店员|兼职人手|找兼职人员)/.test(cleaned);
+ const sideJob=/(兼职|副业|私活|接单|外包活|临时项目|临时工作)/.test(cleaned)&&!hiringPartTimer;
+ const eventSubtype=promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":sideJob?"side_job":hiringPartTimer?"part_time_hire":base.object?.subtype||"general";
  const recognize=[
   ["health",/健康|身体|症状|生病|疾病|病情|手术|康复|怀孕|胎儿/],
   ["legal",/官司|法院|起诉|诉讼|仲裁|法律纠纷|判决/],
@@ -41,10 +43,10 @@ function question(q,requestedDomain){
   ["relationship",/男朋友|女朋友|恋爱|复合|婚姻|结婚|分手|感情|伴侣|前任/],
   ["cooperation",/合作|合伙|搭档|伙伴|团队协作|共同经营|利益分配|竞争/],
   ["children",/孩子|子女|亲子|兴趣|休养|休闲|创作/],
-  ["career",/工作|项目|职位|岗位|事业|职业|升职|降职|任命|领导|公司|门店|上班/]
+  ["career",/工作|项目|职位|岗位|事业|职业|升职|降职|任命|领导|公司|门店|上班|兼职|副业|私活|接单|外包活/]
  ];
  const detected=recognize.find(([,reg])=>reg.test(cleaned))?.[0];
- let field=(promotion||demotion||official)?"career":detected||base.field||"general";
+ let field=(promotion||demotion||official||sideJob||hiringPartTimer)?"career":detected||base.field||"general";
  if(!field){field=/(项目|岗位|职位|职场|升职|降职|任命)/.test(cleaned)?"career":null;}
  const manual={money:"finance",house:"property",friends:"cooperation",career:"career",relationship:"relationship",children:"children",health:"health"};
  if(!promotion&&!demotion&&!official&&requestedDomain&&requestedDomain!=="auto"&&manual[requestedDomain])field=manual[requestedDomain];
@@ -54,7 +56,9 @@ function question(q,requestedDomain){
  const isRisk=/(风险|危险|代价|阻碍在哪里)/.test(cleaned);
  const isImpact=/(对我有什么影响|对我个人.*影响|会给我带来什么)/.test(cleaned);
  const isComparison=/(哪个更|哪一个更|对比|比较|还是.*更好)/.test(cleaned);
- const isOpportunity=base.intent==="new_opportunity"&&!promotion&&!demotion;
+ const isOpportunity=(base.intent==="new_opportunity"||
+    ((sideJob||hiringPartTimer)&&/(会有|还有|进来|出现|找上|来找|有没有|找到|能不能|能否|机会|新增|未来|接下来|近期)/.test(cleaned)&&
+     !/(已经|目前正在做|做了之后|应该接|该不该接|要不要接)/.test(cleaned)))&&!promotion&&!demotion;
  const isOutcome=/(会不会|是否|能不能|能否|能否在|能.*吗|会.*吗)/.test(cleaned);
  const isTrend=/(未来|接下来|后续|发展|走向|趋势|会怎么样)/.test(cleaned);
  const intent=isWhen?"timing":isChoice?"accept_decision":isComparison?"comparison":isRisk?"risk":isImpact?"personal_impact":isOpportunity?"new_opportunity":isOutcome?"outcome":isTrend?"trend":base.intent||"outcome";
@@ -65,7 +69,7 @@ function question(q,requestedDomain){
 function selectUse(i){
  const b=DOMAIN[i.field]||DOMAIN.general;
  return {primary:b.primary,secondary:b.secondary.slice(),label:b.label,topic:
-  i.object.subtype==="promotion"?"正式升职":i.object.subtype==="demotion"?"降职或职级下调":i.object.subtype==="appointment"?"正式任命":
+  i.object.subtype==="promotion"?"正式升职":i.object.subtype==="demotion"?"降职或职级下调":i.object.subtype==="appointment"?"正式任命":i.object.subtype==="side_job"?"新的兼职工作":i.object.subtype==="part_time_hire"?"兼职人员到岗":
   i.field==="career"&&i.intent==="new_opportunity"?"新工作或项目":b.event};
 }
 function branch(r){return String(r||"").slice(-1)}
@@ -138,6 +142,31 @@ function evaluate(c,i,use){
  if(self){
   register("self_state","self","neutral",POS[self.i]+"爻 "+self.gz+self.r+"持世"+(mov.some(r=>r.i===self.i)?"并发动":"，未发动"),"代表本人处境，应与所问用神分开观察",30);
  }
+ // 新工作、新兼职：观察“任务/联系/文书一爻发动，化为职位/工作一爻”。
+ // 该象义与正式录用或实际到岗不同，不能单独推导必成。
+ const newCareerOpportunity=i.field==="career"&&i.intent==="new_opportunity";
+ if(newCareerOpportunity){
+   const emerging=mov.filter(r=>r.vr==="官鬼"&&r.r!=="官鬼");
+   for(const r of emerging){
+     const phase=back(r.gz,r.vgz);
+     register("emerging_job_"+r.i,"new_opportunity","positive",POS[r.i]+"爻 "+r.gz+r.r+"发动化"+r.vgz+r.vr+"（"+phase+"）",
+       "已有沟通、安排或资源线索发生变化，传统上可联系到新的工作机会；这不等于已经签约或开工",94);
+     if(phase==="back_generate")register("emerging_support_"+r.i,"new_opportunity","positive",r.vgz+"生"+r.gz+"（回头生）",
+       "变化后的因素对原爻形成支持，属于机会推进的辅助象义",76);
+     if(c.empty.includes(branch(r.vgz)))register("emerging_void_"+r.i,"new_opportunity","unresolved",r.vgz+"旬空","变化后的岗位线索尚未落实",88);
+   }
+   if(i.object.subtype==="side_job"){
+      const monthBranch=branch(c.month),selfBranch=branch(self.gz);
+      if(OPPOSITE[monthBranch]===selfBranch)register("self_month_clash","self","negative",
+        "世爻"+self.gz+self.r+"受到月建"+monthBranch+"冲动",
+        "本人安排或承接条件存在需要协调的传统象义，不能把新机会直接等同于已经入手的兼职",84);
+      const moneyRows=c.rows.filter(r=>r.r==="妻财");
+      if(moneyRows.length && !moneyRows.some(r=>mov.some(m=>m.i===r.i))){
+        register("earnings_not_moving","deliverability","unresolved","本卦财爻未发动",
+          "收入兑现没有直接动爻依据，不能从有兼职机会直接推断已经拿到报酬",45);
+      }
+   }
+ }
  const related=mov.filter(r=>use.secondary.includes(r.r) && (!used||r.i!==used.i));
  if(related.length)register("secondary_moving","secondary","neutral",related.map(r=>pos(r)+" "+r.gz+r.r).join("、")+"发动","辅助条件出现变化，但不能直接替代主用神的判断",25);
  if(mov.length>1)register("multi_motion","multi","unresolved",mov.map(r=>pos(r)).join("、")+"同时发动","完整多动爻连环作用尚未独立核验，不根据动爻数量推算吉凶",40);
@@ -195,6 +224,10 @@ function humanize(c,i,use,j,verified){
   if(x.id==="health_boundary")return "卦象没有医学判断能力，不能靠它推测病情。";
   if(x.id==="unverified_goal_direction")return "这类问题的好坏方向不能照搬普通求成问题的规则，相关的专业判断还没有验证完成。";
   if(x.id==="multi_motion")return "这张卦同时有多处变化，程序还没有完成它们相互作用的判断，不能按变化数量定结果。";
+  if(x.id.startsWith("emerging_job_"))return "有一爻从安排或沟通事务转为工作相关的象义，说明有值得留意的接洽线索；但这还不是已确定的兼职。";
+  if(x.id.startsWith("emerging_support_"))return "这次变化有相互支持的传统线索，可作为机会推进的辅助依据。";
+  if(x.id==="self_month_clash")return "代表你自身的一爻受到当月干支冲动，承接时间和实际条件可能仍需要协调。";
+  if(x.id==="earnings_not_moving")return "涉及报酬的爻没有发动，不能从有人联系就推断兼职已经成交。";
   if(x.id==="primary_void")return "与这件事直接相关的一爻出现了“旬空”，在传统说法中意味着某些条件还要继续核实。";
   if(x.id==="back_control")return "关键一爻变化后，反而形成制约，这是需要注意的传统阻力信号。";
   if(x.id==="back_generate")return "关键一爻变化后得到生扶，在目前实现的传统规则中属于支持线索。";
@@ -211,7 +244,9 @@ function humanize(c,i,use,j,verified){
  why=[...new Set(why)].slice(0,3);
  const brief="本卦"+c.a.name+(c.a.name!==c.b.name?"，变"+c.b.name:"（静卦）")+"。卦名和变卦只作传统象义参考，不能单凭卦名断成败。";
  const config=DOMAIN[i.field]||DOMAIN.general;
- const action=i.object.subtype==="promotion"?"观察是否已有明确晋升名额、上级提名、评审标准和正式任命安排":
+ const action=i.object.subtype==="side_job"?"留意是否有人明确询问你的档期、报价或合作范围；只有确定工作内容、报酬和开始时间，才算真正接到兼职":
+  i.object.subtype==="part_time_hire"?"留意有没有实际应聘者到店/到岗，确认排班、薪资和录用时间":
+  i.object.subtype==="promotion"?"观察是否已有明确晋升名额、上级提名、评审标准和正式任命安排":
   i.object.subtype==="demotion"?"以正式岗位变更、绩效谈话、组织通知为准，不凭卦象猜测":
   i.object.subtype==="appointment"?"核对组织是否已有任命文件、决策流程和执行节点":config.action;
  return {headline:lead,why,brief,action,scope:scopeTerm,technicalNote:"以下只是在所声明传统规则下对卦盘做的有限分析，不能据此预测真实未来。"};
@@ -221,7 +256,7 @@ function render(c,i,use,j,h,verified){
  const movers=c.rows.filter(r=>[6,9].includes(c.totals[r.i]));
  const movedText=movers.length?movers.map(r=>POS[r.i]+"爻「"+lines[r.i]+"」").join("；"):"本次没有动爻。";
  const sub=(label,arr)=>arr.length?"<h4>"+ESC(label)+"</h4><ul>"+arr.map(x=>"<li>"+ESC(x.fact)+" — "+ESC(x.meaning)+" <small>["+ESC(x.id)+"]</small></li>").join("")+"</ul>":"";
- return '<div class="focus-report yiyan-v5" data-engine="5.0.2">'+
+ return '<div class="focus-report yiyan-v5" data-engine="5.1.0">'+
  '<div class="section-title">先说结论</div><p class="v5-lead"><strong>'+ESC(h.headline)+'</strong></p>'+
  '<div class="section-title">为什么这样说</div><ol class="v5-why">'+h.why.map(x=>"<li>"+ESC(x)+"</li>").join("")+"</ol>"+
  '<div class="section-title">接下来最值得关注什么</div>'+paragraph(h.action)+
@@ -241,7 +276,7 @@ function interpret(c){
  const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
-  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.0.2"};
+  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.1.0"};
 }
-g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.0.2"};
+g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.1.0"};
 })(window);

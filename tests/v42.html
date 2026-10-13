@@ -97,6 +97,30 @@
   add("谦卦：午亥生克受力方明确",modest.signals.some(x=>x.fact.includes("亥克午（午受克）")));
   add("谦卦：初爻变子水旬空，四爻丑土静空",modest.signals.some(x=>x.kind==="void_change"&&x.fact.includes("初"))&&modest.signals.some(x=>x.kind==="void"&&x.fact.includes("四")));
   add("谦卦：世爻为癸亥子孙不是官鬼",modest.answer.includes("癸亥子孙")&&!modest.answer.includes("官鬼持世"));
+  // 2026-10-13 16:43 固定六爻：风水涣→火地晋，二、四、五爻发动。
+  function samplePromotion(question="什么时候能升职"){
+   const throwing=[[3,3,2],[3,3,3],[2,3,3],[2,2,2],[3,3,3],[2,3,2]],
+      totals=[8,9,8,6,9,7],bits=totals.map(n=>n%2),
+      gz=["戊寅","戊辰","戊午","辛未","辛巳","辛卯"],
+      vgz=["乙未","乙巳","乙卯","己酉","己未","己巳"],
+      r=["父母","子孙","兄弟","子孙","兄弟","父母"],
+      vr=["子孙","兄弟","父母","妻财","子孙","兄弟"];
+   return {question,t:{day:"庚申"},throwing,totals,bits,changed:[0,0,0,1,0,1],
+     a:{name:"风水涣",palace:"离宫",home:"火",shi:5,ying:2},b:{name:"火地晋"},
+     rows:gz.map((v,i)=>({i,gz:v,vgz:vgz[i],r:r[i],vr:vr[i],animal:animals[i],empty:false})),
+     empty:["子","丑"],month:"戌",day:"申"};
+  }
+  const promo=YiYaoEngineV42.interpret(samplePromotion());
+  add("升职案例：风水涣变火地晋，二四五动",promo.verified.includes("风水涣")&&promo.verified.includes("火地晋")&&promo.lineTexts.length===3);
+  add("升职问题专属意图",promo.intent.intent==="timing"&&promo.intent.object?.subtype==="promotion");
+  add("升职结论聚焦职位晋升",promo.answer.split("\n")[0].includes("什么时候能升职")&&promo.answer.includes("职务晋升"));
+  add("本卦官鬼不现：不编造晋升应期",promo.answer.includes("未见官鬼爻")&&promo.answer.includes("伏神")&&!/\d{4}年\d{1,2}月必/.test(promo.answer));
+  add("涣九二悔亡不再误判为警示",!promo.answer.includes("二爻存在明确的警示爻辞")&&!promo.answer.includes("二爻「九二")?promo.answer.includes("悔亡"):!promo.answer.includes("【警示】")&&!promo.answer.includes("明确的警示爻辞"));
+  add("涣六四元吉和九五无咎进入传统象义",promo.answer.includes("元吉")&&promo.answer.includes("涣王居")&&promo.answer.includes("传统上为吉"));
+  add("未设限时间不再伪称用户指定接下来",promo.answer.includes("用户没有限定具体时间跨度")&&!promo.answer.includes("用户给定的观察范围"));
+  add("升职案例所有动爻纳入结论",promo.answer.includes("二爻")&&promo.answer.includes("四爻")&&promo.answer.includes("五爻"));
+  const promoTrend=YiYaoEngineV42.interpret(samplePromotion("未来五个月我目前的职业发展会怎样"));
+  add("同卦升职与事业发展细分不同",promoTrend.intent.object?.subtype!=="promotion"&&!promoTrend.answer.includes("未见官鬼爻，须结合尚未校验"));
   const corrupt=sampleK();corrupt.a.shi=2;
   try {YiYaoEngineV42.interpret(corrupt);add("错误世应必须阻止或复核",false,"原有 V4 verify 未独立核对世应");}
   catch(e){add("错误世应必须阻止或复核",true,String(e));}

@@ -101,8 +101,8 @@ function collect(c,base){
  const rows=c.rows,si=c.a.shi-1,ei=c.a.ying-1,self=rows[si],other=rows[ei];
  const moved=rows.filter((r,i)=>c.totals[i]===6||c.totals[i]===9);
  const relevant=rows.filter(r=>config.primary.includes(r.r));
- if(isPromotion&&!rows.some(r=>r.r==="官鬼"))add(95,"升职用神本卦不现","本卦六爻未见官鬼","升职可参考官鬼爻，未显还须核查伏神飞神；本系统未完成伏神独立验收","现阶段无法凭本卦直接确认职务晋升何时发生，不能将职位变化等同于已经有任命机会","promotion_absent");
  const signals=[],add=(priority,title,fact,rule,meaning,kind)=>signals.push({priority,title,fact,rule,meaning,kind});
+ if(isPromotion&&!rows.some(r=>r.r==="官鬼"))add(95,"升职用神本卦不现","本卦六爻未见官鬼","升职可参考官鬼爻，未显还须核查伏神飞神；本系统未完成伏神独立验收","现阶段无法凭本卦直接确认职务晋升何时发生，不能将职位变化等同于已经有任命机会","promotion_absent");
  const selfMove=moved.some(r=>r.i===si),otherMove=moved.some(r=>r.i===ei);
  if(selfMove){
   const back=backRelation(self.gz[1],self.vgz[1]);

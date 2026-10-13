@@ -8,7 +8,7 @@ pre{white-space:pre-wrap;background:#fff;padding:20px;border:1px solid #ccd8c9;b
 <script src="../engine-v3.js?v=5.0.0"></script>
 <script src="../engine-v4.js?v=5.0.0"></script>
 <script src="../engine-v42.js?v=5.0.0"></script>
-<script src="../engine-v5.js?v=5.0.0"></script>
+<script src="../engine-v5.js?v=5.0.1"></script>
 <script>
 (async()=>{
  const results=[],add=(label,good,detail="")=>results.push({label,pass:!!good,detail});
@@ -121,6 +121,12 @@ function sampleQian(){
   const out=q(sampleBigOver,prompt);
   add("全领域："+field,out.intent.field===field&&out.judgment&&out.answer.length>15);
  }
+ const down=q(samplePromotion,"未来五个月会降职吗？");
+ add("降职问题不反用升职吉凶",down.judgment.status==="insufficient_evidence"&&down.judgment.unresolved_factors.some(x=>x.id==="unverified_goal_direction"));
+ const legal=q(sampleBigOver,"这场官司会不会赢？");
+ add("法律争议不臆测判决方向",legal.judgment.status==="insufficient_evidence"&&legal.judgment.unresolved_factors.some(x=>x.id==="unverified_goal_direction"));
+ const breakup=q(sampleBigOver,"我们会不会分手？");
+ add("分手问题不反向套关系吉凶",breakup.judgment.status==="insufficient_evidence"&&breakup.intent.object.subtype==="breakup");
  const health=q(sampleBigOver,"我的身体健康会怎样？");
  add("健康结论保留医疗边界",health.judgment.status==="insufficient_evidence"&&health.answer.includes("不能用卦象"));
  const injected=sampleG();injected.a.shi=4;

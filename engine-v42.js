@@ -129,13 +129,13 @@ function summarize(c,base,info){
  const evidence="关键依据："+key.map(s=>s.fact).join("；")+"。";
  let opening="";
  switch(intent.intent){
-  case "new_opportunity":opening="对于是否会出现新机会，"+state+"。"+opportunity+"。"+(unfilled.length?"有关用神逢旬空，传统上有条件暂未坐实的提示。":"")+"卦内信号不足以确定新机会一定出现或具体出现时间。";break;
-  case "timing":opening="就你问的发生时间，"+state+"。"+momentum+"，但现有经过校验的规则不足以推出具体日期。不能把爻位当月份。";break;
+  case "new_opportunity":opening="对于"+config.topic+"是否会出现新机会，"+state+"。"+opportunity+"。"+(unfilled.length?"有关用神逢旬空，传统上有条件暂未坐实的提示。":"")+"卦内信号不足以确定新机会一定出现或具体出现时间。";break;
+  case "timing":opening="就你问的"+config.topic+"发生时间，"+state+"。"+momentum+"，但现有经过校验的规则不足以推出具体日期。不能把爻位当月份。";break;
   case "personal_impact":opening="对你个人的影响，首先看世爻："+position(si)+" "+self.gz+self.r+(moved.some(r=>r.i===si)?"发动化"+self.vgz+self.vr+"（"+backRelation(self.gz[1],self.vgz[1])+"）":"保持静态")+"。"+state+"。重点观察这些变化是否会增加你在"+config.topic+"上的责任、资源或牵制。";break;
   case "accept_decision":opening="对于是否接受或承接，"+state+"。"+momentum+"，需要同时区分事情本身的推进条件与本人承担的代价；不能仅凭此卦宣布必须接或必须拒绝。";break;
   case "comparison":opening="你询问多个对象的比较，"+state+"。当前未为每个对象确立可靠的对应爻位及独立证据，不能仅凭这一卦决定哪个必然更好。";break;
-  case "outcome":opening="对所问事项能否达成结果，"+state+"。"+momentum+"；是否成功仍取决于具体条件，卦象不足以给出现实结果的保证。";break;
-  case "risk":opening="关于风险，"+state+"。本卦值得重点审视的是："+(main||"动变条件及世应关系")+"。";break;
+  case "outcome":opening="关于"+config.topic+"能否达到所问结果，"+state+"。"+momentum+"；是否成功仍取决于具体条件，卦象不足以给出现实结果的保证。";break;
+  case "risk":opening="关于"+config.topic+"的风险，"+state+"。本卦值得重点审视的是："+(main||"动变条件及世应关系")+"。";break;
   case "trend":
   default:opening="关于"+(intent.window&&intent.window!=="未明确时间范围"?intent.window+"内":"接下来")+config.topic+"的走向，"+state+"。"+(main||"仍需留意世应和有关用神的状态")+"。";break;
  }

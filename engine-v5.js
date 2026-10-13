@@ -165,16 +165,26 @@ function evaluate(c,i,use){
 function humanize(c,i,use,j,verified){
  const scope=use.topic, isTime=i.intent==="timing", scopeTerm=i.window!=="未明确时间范围"?i.window+"内":"";
  const verdict={
-  favorable_signals:"按当前能核验的部分传统规则，与"+scope+"相关的信号偏有利，但这不代表现实中一定能成。",
-  restraining_signals:"按当前能核验的部分传统规则，与"+scope+"有关的制约信号较明显，但不能因此断言一定失败。",
-  mixed_signals:"这张卦里既有支持"+scope+"的传统线索，也有明显阻碍，暂时无法判断哪一边占上风。",
-  insufficient_evidence:"目前这张卦还不足以判断"+scope+"是否会发生，不能为了给答案而硬判好坏。"
+  favorable_signals:"按已核对的部分传统规则，"+scope+"有一些有利线索，但现实结果还不能凭这一卦确定。",
+  restraining_signals:"目前看到的传统线索里，"+scope+"有一些明显阻力，但不等于一定失败。",
+  mixed_signals:"与"+scope+"有关的线索有支持也有阻碍，这次还看不出明确方向。",
+  insufficient_evidence:"这张卦关于"+scope+"的关键信息不够，暂时不能判断会不会发生。"
  }[j.status];
  let lead=verdict;
- if(isTime)lead="你问的是"+scope+"什么时候发生。目前没有可靠依据算出具体哪月哪天。"+verdict;
- else if(i.intent==="new_opportunity")lead="关于会不会有"+scope+"，"+verdict;
- else if(i.intent==="trend")lead="关于"+(scopeTerm||"接下来")+scope+"的走向，"+verdict;
- else if(i.intent==="comparison")lead="这张卦还不足以公平比较两个对象。需要分别确定对应对象和取用依据。";
+ if(isTime){
+  const who=i.object.subtype==="promotion"?"你什么时候能升职":i.object.subtype==="appointment"?"你什么时候会得到正式任命":scope+"什么时候发生";
+  lead="现在没有可靠依据判断"+who+"，不能给你编一个月份。"+
+    (j.status==="insufficient_evidence"?"卦里还有关键条件没核实清楚。":verdict);
+ }else if(i.object.subtype==="promotion"&&i.intent==="outcome"){
+  lead=(scopeTerm?"关于"+scopeTerm+"能不能升职，":"关于能不能升职，")+
+    (j.status==="insufficient_evidence"?"目前这卦还给不出有依据的肯定或否定答案。":verdict);
+ }else if(i.intent==="new_opportunity"){
+  lead="关于还会不会出现"+scope+"，"+verdict;
+ }else if(i.intent==="trend"){
+  lead="看"+(scopeTerm||"接下来")+scope+"的走向，"+verdict;
+ }else if(i.intent==="comparison"){
+  lead="这张卦还不足以公平比较两个选择，不能凭它直接说哪个好。需要先确定各对象对应的判断依据。";
+ }
  if(i.field==="health")lead="这类健康问题不能用卦象判断诊断、治疗或康复结果。可以查看传统文化象义，但具体健康问题应依据医学信息。";
  const mainEvidence=[...j.restricting_factors,...j.supporting_factors,...j.unresolved_factors]
   .sort((a,b)=>b.priority-a.priority).slice(0,3);
@@ -211,7 +221,7 @@ function render(c,i,use,j,h,verified){
  const movers=c.rows.filter(r=>[6,9].includes(c.totals[r.i]));
  const movedText=movers.length?movers.map(r=>POS[r.i]+"爻「"+lines[r.i]+"」").join("；"):"本次没有动爻。";
  const sub=(label,arr)=>arr.length?"<h4>"+ESC(label)+"</h4><ul>"+arr.map(x=>"<li>"+ESC(x.fact)+" — "+ESC(x.meaning)+" <small>["+ESC(x.id)+"]</small></li>").join("")+"</ul>":"";
- return '<div class="focus-report yiyan-v5" data-engine="5.0.1">'+
+ return '<div class="focus-report yiyan-v5" data-engine="5.0.2">'+
  '<div class="section-title">先说结论</div><p class="v5-lead"><strong>'+ESC(h.headline)+'</strong></p>'+
  '<div class="section-title">为什么这样说</div><ol class="v5-why">'+h.why.map(x=>"<li>"+ESC(x)+"</li>").join("")+"</ol>"+
  '<div class="section-title">接下来最值得关注什么</div>'+paragraph(h.action)+
@@ -231,7 +241,7 @@ function interpret(c){
  const i=question(c.question,c.requestedDomain);if(!i.ok)throw Error(i.error);
  const use=selectUse(i),judgment=evaluate(c,i,use),answer=humanize(c,i,use,judgment,verified),html=render(c,i,use,judgment,answer,verified);
  return {ok:true,html,answer:answer.headline,explanation:answer.why,
-  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.0.1"};
+  judgment,intent:i,conclusion:answer.headline,interpretationVersion:"5.0.2"};
 }
-g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.0.1"};
+g.YiYaoEngineV5={load:()=>old.load(),identify:question,selectUse,evaluate,interpret,version:"5.0.2"};
 })(window);

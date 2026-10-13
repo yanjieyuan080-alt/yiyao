@@ -20,6 +20,7 @@ const LINE_GLOSSES={
  "天火同人":{4:"乘其墉，弗克攻：遇到矛盾时不宜一味强攻",6:"同人于郊：保持适当距离与合作边界"},
  "雷风恒":{4:"田无禽：投入若方向不合适，努力可能难获预期回报"},
  "地山谦":{1:"谦谦君子，用涉大川：以谦逊、充分准备开展事务，利于稳步承担挑战",2:"鸣谦，贞吉：坚持稳健做事、言行一致，传统象义有形成认可的意味",6:"鸣谦，利用行师，征邑国：强调适当组织行动、治理自身职责范围内的问题，不宜无边界扩大行动"},
+ "风水涣":{2:"涣奔其机，悔亡：重新找到依靠或立足点，原有悔恨消散，不属于凶辞",4:"涣其群，元吉：突破局部群体的局限，整合协作力量，传统上为吉",5:"涣汗其大号，涣王居，无咎：发布号令、明确组织责任，重在形成执行秩序"},
 
  "泽风大过":{1:"藉用白茅：先把承接条件准备稳妥，谨慎可以避免过失",5:"枯杨生华，无咎无誉：虽有局部新机，未必等于持久成果或明确认可",6:"过涉灭顶，凶，无咎：明显的过度承担风险警示，无咎不等于没有代价"}
 };
@@ -79,8 +80,9 @@ function backRelation(src,dst){
 
 const position=i=>POS[i]+"爻";
 function lineWarn(text){
- const normalized=String(text||"").replace(/无咎|无悔/g,"");
- return /凶|厉|吝|悔|灭顶|灾/.test(normalized);
+ // “悔亡/悔灭”指悔恨消除，不是发生悔恨；“无咎/无悔”也不是凶辞。
+ const normalized=String(text||"").replace(/悔亡|悔灭|悔消|无咎|无悔|无过/g,"");
+ return /凶|厉|吝|悔|灭顶|灾|无攸利|不利/.test(normalized);
 }
 function directionText(from,to){
  const r=relation(from,to);
@@ -92,10 +94,14 @@ function directionText(from,to){
  return from+"与"+to+"作用关系未识别";
 }
 function collect(c,base){
- const intent=base.intent,config=CONTEXT[intent.field]||CONTEXT.general;
+ const intent=base.intent;
+ const isPromotion=intent.object?.subtype==="promotion";
+ const original=CONTEXT[intent.field]||CONTEXT.general;
+ const config=isPromotion?{...original,topic:"职位晋升、职级变化和任命",primary:["官鬼","父母"],risk:"核对晋升条件、绩效评价、组织岗位空缺、决策人及实际评审节点"}:original;
  const rows=c.rows,si=c.a.shi-1,ei=c.a.ying-1,self=rows[si],other=rows[ei];
  const moved=rows.filter((r,i)=>c.totals[i]===6||c.totals[i]===9);
  const relevant=rows.filter(r=>config.primary.includes(r.r));
+ if(isPromotion&&!rows.some(r=>r.r==="官鬼"))add(95,"升职用神本卦不现","本卦六爻未见官鬼","升职可参考官鬼爻，未显还须核查伏神飞神；本系统未完成伏神独立验收","现阶段无法凭本卦直接确认职务晋升何时发生，不能将职位变化等同于已经有任命机会","promotion_absent");
  const signals=[],add=(priority,title,fact,rule,meaning,kind)=>signals.push({priority,title,fact,rule,meaning,kind});
  const selfMove=moved.some(r=>r.i===si),otherMove=moved.some(r=>r.i===ei);
  if(selfMove){
@@ -136,6 +142,7 @@ function collect(c,base){
 }
 function summarize(c,base,info){
  const {self,moved,relevant,signals,config,si,ei}=info,intent=base.intent,goal=intent.intent;
+ const isPromotion=intent.object?.subtype==="promotion", hasOffice=c.rows.some(r=>r.r==="官鬼");
  const old=c.a.name,changed=c.b.name,theme=themeOf(old),toTheme=themeOf(changed);
  const state=moved.length?"本卦「"+old+"」（"+theme+"）变「"+changed+"」（"+toTheme+"）":"本卦「"+old+"」六爻安静（"+theme+"）";
  const focus=signals.filter(s=>["self_move","moving"].includes(s.kind)).slice(0,3);
@@ -149,7 +156,7 @@ function summarize(c,base,info){
  const useMove=moved.filter(r=>config.primary.includes(r.r)||config.primary.includes(r.vr)).sort((a,b)=>Number(config.primary.includes(b.r))-Number(config.primary.includes(a.r)));
  const yearWindow=intent.window&&intent.window!=="未明确时间范围"?intent.window:"接下来";
  const scope=goal==="trend"?"关于"+yearWindow+"的"+config.topic+"走向":
-            goal==="timing"?"关于"+config.topic+"何时发生":
+            goal==="timing"?(isPromotion?"关于什么时候能升职":"关于"+config.topic+"何时发生"):
             goal==="new_opportunity"?"关于是否会出现新的"+config.topic+"机会":
             goal==="personal_impact"?"关于这件事对你个人的影响":
             goal==="accept_decision"?"关于是否接受或承接":
@@ -159,17 +166,21 @@ function summarize(c,base,info){
  let verdict=scope+"，按传统卦义，"+state+"。";
  if(goal==="comparison")verdict+="当前没有为不同对象确立可靠的爻位对应关系，不能凭此卦给出对象排名。";
  else if(goal==="new_opportunity")verdict+=moved.length?"卦内有变化线索，但不能据此确认新机会一定出现。":"没有直接动爻变化，不代表未来一定没有新机会。";
- else if(goal==="timing")verdict+="卦内的动静、旬空可作为传统观察线索，但目前没有经充分校验的应期规则，不据此断具体日期。";
+ else if(goal==="timing"){
+  verdict+=(isPromotion?"这次占问具体对应职务晋升，并非泛指工作变化。":"")+"卦内的动静、旬空仅可作为传统观察线索，但目前没有经充分校验的应期规则，不据此断具体日期。";
+  if(isPromotion&&!hasOffice)verdict+="本卦六爻未见官鬼爻，须结合尚未校验完成的伏神规则才能尝试进一步判断，不宜断定近期必然晋升。";
+ }
  else if(goal==="accept_decision")verdict+="需要同时区分事情本身的变化与本人承担的责任，不能仅按卦名确定接或不接。";
  else if(goal==="personal_impact")verdict+="本人持世于"+position(si)+" "+self.gz+self.r+(isSelfMoving?"且发动":"，没有发动")+"，要结合其余动爻评估个人的责任与压力象义。";
  else if(goal==="trend")verdict+="这一变化只能理解为传统象义上的发展方向，不表示期限内一定发生具体职务或收入变化。";
  else if(goal==="outcome")verdict+="有关用神"+(useMove.length?"出现发动":"未直接发动")+"，但不支持断定事情必成或必败。";
  else if(goal==="risk")verdict+="需要综合动爻原文与受制条件，而不是只看变卦是否吉利。";
  if(warningLines.length)verdict+="但"+warningLines.map(t=>position(t.position-1)).join("、")+"存在明确的警示爻辞，不能只因变卦较积极就断定一切顺利。";
- if(!warningLines.length && LINE_GLOSSES[old] && (goal==="trend"||goal==="risk")){
+ if(!warningLines.length && LINE_GLOSSES[old] && (goal==="trend"||goal==="risk"||goal==="timing")){
   const focused=base.lineTexts.map(t=>LINE_GLOSSES[old]?.[t.position]).filter(Boolean);
   if(focused.length)verdict+="其中动爻更强调："+focused.join("；")+"。";
  }
+ if(isPromotion && !hasOffice)verdict+="仍需要检查真正的晋升条件，不能把变卦「"+changed+"」直接等同于拿到职位。";
  const coreSentences=[];
  if(isSelfMoving){
   const sr=moved.find(r=>r.i===si);
@@ -198,7 +209,7 @@ function summarize(c,base,info){
   else risks=moved.length?"变化可能提供新机会，也可能带来新条件；需要区分已落实的支持与尚未确认的安排。":"静卦无动爻，不应强行判断必然发生某项变化。";
  }
  risks+="现实中："+config.risk+"。";
- const time=goal==="trend"||goal==="timing"?"所问时间："+yearWindow+"。此处是用户给定的观察范围，不是动爻推算出的事件日期。":"";
+ const time=goal==="timing"?(intent.window==="未明确时间范围"?"用户没有限定具体时间跨度；现有规则不支持可靠推算哪月哪日发生。":"用户指定的时间范围："+intent.window+"；当前没有经校验的具体应期结论。"):goal==="trend"?"用户所问观察范围："+(intent.window==="未明确时间范围"?"未限定":intent.window)+"；不将其当作卦象推算日期。":"";
  const answer=verdict+"\n"+corePara+"\n"+(classics?"动爻依据："+classics+"。\n":"")+"风险与条件："+risks+(time?"\n"+time:"");
  return {answer,state,evidence:key,heading:verdict,conclusion:verdict,limit:"这是传统术数文化下的条件性解释，不能可靠预测现实未来。"};
 }
@@ -208,18 +219,18 @@ function interpret(c){
  const info=collect(c,base),story=summarize(c,base,info),intent=base.intent;
  const detail=info.signals.map(x=>'<div class="v42-evidence"><strong>'+esc(x.title)+'</strong>'+p("卦盘事实："+x.fact)+p("传统规则："+x.rule)+p("解释："+x.meaning)+'</div>').join("");
  const lineText=base.lineTexts.length?base.lineTexts.map(l=>p(position(l.position-1)+"："+l.text)).join(""):p("无动爻。本卦不据此断定事件必不发生。");
- const html='<div class="focus-report" data-engine="4.2.2"><div class="section-title">问题与分析范围</div>'+p(intent.question+"｜"+intent.fieldName+"｜"+intent.intent+"｜"+intent.window)+
+ const html='<div class="focus-report" data-engine="4.2.3"><div class="section-title">问题与分析范围</div>'+p(intent.question+"｜"+intent.fieldName+"｜"+intent.intent+"｜"+intent.window)+
  '<div class="section-title">直接回答</div>'+story.answer.split("\n").map(p).join("")+
  '<div class="section-title">本卦、变卦与卦辞</div>'+p(c.a.name+" → "+c.b.name+"；动爻："+(info.moved.map(r=>position(r.i)).join("、")||"无")+"；卦辞："+core.verify(c).origin.judgment)+
  '<div class="section-title">决定分析重点的卦盘依据</div>'+detail+
  '<div class="section-title">动爻经文（原文）</div>'+lineText+
  ((intent.intent==="timing"||intent.intent==="trend")?'<div class="section-title">时间判断边界</div>'+p("暂无经独立验证的传统应期依据，不能据此推断某月某日必然发生相关事件。"):"")+
  '<div class="section-title">现实核验与风险</div>'+p(info.config.risk)+
- '<p class="sub">易爻 V4.2.2：规则可追溯的传统文化辅助解读。伏神飞神、复杂旺衰、墓绝及多动连环作用尚未达到专业完整验收；健康、法律和重大财务问题以现实证据和专业意见为准。本工具不提供可靠的未来预测。</p></div>';
- const result={...base,html,answer:story.answer,signals:info.signals,conclusion:story.conclusion,interpretationVersion:"4.2.2"};
+ '<p class="sub">易爻 V4.2.3：规则可追溯的传统文化辅助解读。伏神飞神、复杂旺衰、墓绝及多动连环作用尚未达到专业完整验收；健康、法律和重大财务问题以现实证据和专业意见为准。本工具不提供可靠的未来预测。</p></div>';
+ const result={...base,html,answer:story.answer,signals:info.signals,conclusion:story.conclusion,interpretationVersion:"4.2.3"};
  if(info.self.r!=="官鬼"&&/官鬼持世/.test(result.answer+result.html))throw Error("结论与卦盘冲突：并非官鬼持世");
  if(info.self.r!=="兄弟"&&/兄弟持世/.test(result.answer+result.html))throw Error("结论与卦盘冲突：并非兄弟持世");
  return result;
 }
-g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,version:"4.2.2"};
+g.YiYaoEngineV42={load:()=>core.load(),verify:verify42,identify:q=>core.identify(q),interpret,version:"4.2.3"};
 })(window);

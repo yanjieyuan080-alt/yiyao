@@ -1,0 +1,20 @@
+<!doctype html><meta charset="utf-8"><title>易爻 V4.1 回归测试</title><h1>易爻 V4.1 问题识别与方向测试</h1><pre id="report">加载中…</pre><script src="../engine-v3.js"></script><script src="../engine-v4.js?v=4.1.1"></script><script>
+(async()=>{
+const results=[],check=(label,ok,detail="")=>results.push({label,ok,detail});
+try{await YiYaoEngineV4.load();
+const queries=[
+["接下来我还会进新的项目进来吗？","new_opportunity"],
+["接下来还会有新项目分配给我吗？","new_opportunity"],
+["现在有一个新项目，我该不该接？","accept_decision"],
+["我正在负责的项目未来三个月发展如何？","trend"],
+["这个项目什么时候会有成果？","timing"],
+["同时负责四个项目，对我个人有什么影响？","personal_impact"],
+["未来三个月是否会有新的合作机会？","new_opportunity"]];
+queries.forEach(([q,expected])=>{const o=YiYaoEngineV4.identify(q);check(q,o.intent===expected&&!(expected==="new_opportunity"&&o.intents.includes("accept_decision")),JSON.stringify(o.intents));});
+const dd=YiYaoEngineV4.identify(queries[0][0]);
+check("新机会问题结构化对象",dd.object?.primary_intent==="new_opportunity"&&dd.object.domain==="career");
+const bit=[1,0,0,0,0,1];check("山雷颐静卦独立卦象计算",YiYaoEngineV4.fromBits(bit).join("/") === "艮/震");
+const r=YiYaoEngineV4.getRelation("戌","申");check("日辰申与戌五行方向需按土生金解释",r==="泄",r);
+}catch(e){check("脚本或数据加载",false,String(e));}
+document.getElementById("report").textContent=results.map(x=>(x.ok?"PASS":"FAIL")+" "+x.label+" "+x.detail).join("\n")+"\n共通过 "+results.filter(x=>x.ok).length+"/"+results.length;
+})();</script>

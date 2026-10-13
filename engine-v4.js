@@ -31,7 +31,25 @@ for(let i=0;i<6;i++){const r=c.rows[i];if(r.r!==kin(c.a.home,five[r.gz[1]])||r.v
 return {origin,dest};
 }
 function getRelation(a,b){if(a===b)return "临";if(clash[a]===b)return "冲";if(join[a]===b)return "合";if(harm[a]===b)return "害";if(sheng[five[a]]===five[b])return "生";if(ke[five[a]]===five[b])return "克";if(sheng[five[b]]===five[a])return "泄";if(ke[five[b]]===five[a])return "耗";return "同气"}
-function fields(q){return g.YiYaoEngineV3.identify(q)}
+function fields(q){
+const raw=String(q||"").trim();if(!raw)return {ok:false,error:"请先输入一个具体问题"};
+const clean=raw.replace(/\s+/g,"");
+const base=g.YiYaoEngineV3.identify(raw);
+if(!base.ok)return base;
+const opportunity=/(还会|会不会|是否|有没有|能不能|能否|将会|未来|接下来|接着|之后|近期|最近|有机会|出现|迎来|获得|分配|安排|来|进)/.test(clean)&&/(新的?|其他|更多|下一[个份次]?)/.test(clean)&&/(项目|工作|机会|合作|客户|业务|订单|岗位|职位|面试|房源|感情|对象|收入|财源)/.test(clean)&&!/(该不该接|要不要接|接了|接手后|如果我接|拒绝|不接)/.test(clean);
+const accept=/(该不该接|要不要接|是否接受|接不接|如果.*接(了|手|下)?|接了(这个|它)?|接手(这个|后)?|值得接)/.test(clean)&&!opportunity;
+const compare=/(哪个更|哪一个更|比较|对比|哪个值得|A项目.*B项目|还是.*更好)/i.test(clean);
+const timing=/(什么时候|多久|何时|几天|几月|几号|多长时间)/.test(clean);
+const impact=/(对我|个人|我自己).*(影响|变化|收益|压力|损失|后果)|影响.*(我|自己)/.test(clean);
+const risk=/(风险|隐患|阻碍|危险|损失|代价|问题是什么)/.test(clean);
+const outcome=/(能否|是否|会不会|能不能|会有|成果|结果|成功|达成|通过|签成|回款)/.test(clean);
+const trend=/(未来|接下来|后续|发展|变化|走向|趋势)/.test(clean);
+let primary=compare?"comparison":opportunity?"new_opportunity":accept?"accept_decision":timing?"timing":impact?"personal_impact":risk?"risk":trend?"trend":outcome?"outcome":"outcome";
+const intents=[primary];
+for(const [name,value] of [["new_opportunity",opportunity],["accept_decision",accept],["outcome",outcome],["trend",trend],["timing",timing],["personal_impact",impact],["risk",risk],["comparison",compare]])if(value&&!intents.includes(name))intents.push(name);
+if(primary==="new_opportunity"){const bad=intents.indexOf("accept_decision");if(bad>=0)intents.splice(bad,1);}
+return {...base,question:raw,intent:primary,intents,object:{domain:base.field,subtype:opportunity?"future_new_allocation":accept?"existing_offer_choice":trend?"ongoing_development":"specific_question",primary_intent:primary,intents,time_window:base.window,original_question:raw}};
+}
 function interpret(c){
 const v=verify(c),intent=fields(c.question);if(!intent.ok)throw Error(intent.error);
 const moved=c.rows.filter((r,i)=>[6,9].includes(c.totals[i])),self=c.rows[c.a.shi-1],other=c.rows[c.a.ying-1];
@@ -46,6 +64,9 @@ record("所问关键爻",selected.map(r=>N[r.i]+"爻"+r.gz+r.r+(r.empty?"（旬�
 moved.forEach(r=>{const o=five[r.gz[1]],n=five[r.vgz[1]];const back=sheng[n]===o?"回头生":ke[n]===o?"回头克":sheng[o]===n?"动生变":ke[o]===n?"动克变":"比和";const progress=advance[r.gz[1]]===r.vgz[1]?"进神":advance[r.vgz[1]]===r.gz[1]?"退神":"不构成进退神";record(N[r.i]+"爻动变",r.gz+r.r+" → "+r.vgz+r.vr+"；"+back+"；"+progress+"；"+(r.empty?"本爻旬空；":"")+(c.empty.includes(r.vgz[1])?"变爻旬空；":""), "回头生克取变爻五行作用于本动爻；进退神使用四长生与土支序列规则","变化的推动与反馈需与世、应、用神结合，不可将爻辞视作发生过的现实事件。");});
 if(moved.length>1)record("多爻联动",moved.map(r=>N[r.i]+r.gz).join("、"),"多动爻并看，空亡动爻和非空动爻不能简单同权累加","这张卦有多处同时变化，不能给每条爻分配一个月份。");
 const lineTexts=moved.map(r=>({position:r.i+1,text:v.origin.lines[r.i]}));
+const directional=(a,b)=>{const ael=five[a[1]],bel=five[b[1]];if(ael===bel)return a+"与"+b+"同五行";if(sheng[ael]===bel)return a+"生"+b+"（"+a+"向"+b+"泄气；"+b+"受生）";if(sheng[bel]===ael)return b+"生"+a+"（"+a+"受"+b+"生扶）";if(ke[ael]===bel)return a+"克"+b+"（"+b+"受制）";if(ke[bel]===ael)return b+"克"+a+"（"+a+"受制）";return "无直接关系";};
+record("世爻与日辰的明确方向",directional(self.gz,c.day),"明确标示生克的施受方向，不以“耗”等模糊字样代替","这说明哪一方付出、哪一方受制，但不能直接推导具体事件。");
+record("世爻与应爻的明确方向",directional(self.gz,other.gz),"世应五行须标记主动与被动","不将世克应误称为应克世。");
 const domain=intent.field,goal=intent.intent;
 const summary={
 career:"本卦所示的工作变化应重点观察职责、权力及成果归属是否同步变化，不能由官鬼持世直接认定升职或离职。",
@@ -60,6 +81,14 @@ legal:"传统象义不能代替证据、诉讼程序或法律专业建议。",
 general:"占问范围偏宽，不能将卦内变化任意对应到工作或关系的具体事件。"
 }[domain]||"应结合真实问题核对用神及世应";
 let answer=summary;
+if(goal==="new_opportunity"){
+const job=(domain==="career"||domain==="cooperation"), still=moved.length===0;
+const related=c.rows.filter(r=>job?["官鬼","父母"].includes(r.r):domain==="finance"?r.r==="妻财":domain==="relationship"?["官鬼","妻财"].includes(r.r):domain==="property"?r.r==="父母":r.r===selected[0]?.r);
+const activeRelated=related.filter(r=>moved.some(m=>m.i===r.i));
+const unfilled=related.filter(r=>c.empty.includes(r.gz[1]));
+const topic=domain==="career"?"新的工作或项目":domain==="cooperation"?"新的合作机会":domain==="finance"?"新的财务机会":domain==="relationship"?"新的关系机会":domain==="property"?"新的房产或合同机会":"新的相关机会";
+answer="你问的是接下来是否还会出现"+topic+"，并非该不该接受已出现的项目。"+(still?"此卦六爻安静，暂时没有直接的动爻触发信号；这只能表示当前卦内变化不显著，不能因此断定未来绝无新增机会。":activeRelated.length?"相关六亲中有"+activeRelated.map(r=>["初","二","三","四","五","上"][r.i]+"爻"+r.gz+r.r).join("、")+"发动，可视为新增机会相关的传统变化线索，但不保证机会实际发生。":"虽有动爻，但相关用神没有直接发动，现有信号不足以确定新增机会是否会落实。")+(unfilled.length?"相关爻中有旬空，需要留意条件是否尚未落实。":"")+(intent.intents.includes("timing")?"尚无充分应期依据，不能推断具体到来的日子。":"")+"现实中可以观察实际分配通知、用人需求或新机会的沟通。";
+}
 if(goal==="timing")answer="你问的是发生时间。此卦虽有"+moved.length+"处动爻，但目前不能通过已经验证的应期规则推出具体日期；以下只能展示潜在影响因素。"+summary;
 if(goal==="compare")answer="你要求比较多个对象。当前没有各对象预设对应爻位及独立数据，不能凭一卦给出对象排序。";
 if(goal==="refuse")answer="你问的是不接受之后的后果，不应直接反转“接受有利”的判断。"+summary;
@@ -73,5 +102,5 @@ const risks={career:"核实职责是否增加、授权是否同步、交付成�
 const html='<div class="focus-report" data-engine="4"><div class="section-title">所问问题与意图</div><p>'+esc(intent.question)+'｜'+esc(intent.fieldName)+'｜'+esc(intent.intents.join("、"))+'｜'+esc(intent.window)+'</p><div class="section-title">核心回答</div><p>'+esc(answer)+'</p><div class="section-title">独立卦象核验与卦辞</div><p>'+esc(v.origin.name)+' → '+esc(v.dest.name)+'；动爻 '+(moved.map(r=>N[r.i]).join("、")||"无")+'。卦辞：'+esc(v.origin.judgment)+'</p><div class="section-title">可追溯的装卦推理链</div>'+evidence+'<div class="section-title">动爻原文与传统象义</div>'+ (titleLines||'<p>无动爻。</p>')+'<p>爻辞与纳甲的吉凶生克采用两套解释层，不将象义直接当作纳甲计分。当前无经校验的统一现代爻辞解释，不伪称已完成逐爻释义。</p>' +((goal==="timing"||goal==="trend")?'<div class="section-title">发展及时间依据</div><p>没有得到经过独立验证的应期证据，不能推断某个月或某天一定发生什么。</p>':"")+'<div class="section-title">风险与现实条件</div><p>'+esc(risks)+'</p><div class="section-title">最终结论</div><p><strong>'+esc(answer)+'</strong></p><p class="sub">易爻仅提供传统纳甲文化辅助分析。当前尚未完成独立验证的完整墓绝、伏神飞神、多动连锁旺衰权重及传统应期断法；这些缺口会限制具体吉凶判断。健康、法律与重大财务决策依赖专业事实与意见。</p></div>';
 return {html,intent,answer,facts,lineTexts,verified:v.origin.name+"→"+v.dest.name};
 }
-g.YiYaoEngineV4={load,verify,interpret,fromBits,getRelation,version:"4.0-partial"};
+g.YiYaoEngineV4={load,verify,interpret,fromBits,getRelation,version:"4.1-intent-fix",identify:fields,directional};
 })(window);

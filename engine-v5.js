@@ -19,6 +19,7 @@ const DOMAIN={
  relationship:{label:"关系",primary:"世应",secondary:["官鬼","妻财"],event:"这段关系",action:"看双方是否有明确沟通和实际行动，不凭卦象揣测对方心思"},
  property:{label:"房屋和合同",primary:"父母",secondary:["妻财"],event:"合同或房屋事务",action:"核对权属、条款、付款、审批和交付节点"},
  cooperation:{label:"合作",primary:"世应",secondary:["兄弟","父母"],event:"合作进展",action:"确认分工、合作方的实际投入，以及责任和收益怎么分"},
+ social:{label:"朋友与社交",primary:"兄弟",secondary:["世应"],event:"结识新朋友",action:"关注是否结识新人及相处是否持续，不涉及商业合作的分工与收益"},
  children:{label:"生活和子女",primary:"子孙",secondary:["父母"],event:"所问的生活事项",action:"以实际生活安排、当事人需要和资源状况作判断"},
  exam:{label:"考试",primary:"父母",secondary:["官鬼"],event:"考试或录取",action:"核对考试成绩、资格、录取安排和官方通知"},
  legal:{label:"法律",primary:"官鬼",secondary:["父母"],event:"纠纷处理",action:"核对证据、程序和时效；重大事项咨询专业法律人士"},

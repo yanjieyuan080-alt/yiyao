@@ -35,10 +35,11 @@ function question(q,requestedDomain){
  const demotion=/(降职|降级|被贬|下调职级|被撤职|免职)/.test(cleaned);
  const official=/(正式任命|职位任命|职务任命|被任命为|得到任命)/.test(cleaned);
  const breakup=/(分手|离婚|断联|彻底分开)/.test(cleaned);
+ const jobTenure=/(公司|单位|岗位|这份工作|目前工作|当前工作).*(待多久|呆多久|干多久|做多久|留多久|待到什么时候|呆到什么时候|还能待|还能呆|何时离开|什么时候离开)|(会在|在).*(公司|单位).*(多久|多长时间)/.test(cleaned);
  const socialFriends=/(朋友|友谊|交友|交朋友|认识新人|结识新人|朋友圈子|社交圈)/.test(cleaned)&&!/(男女朋友|男朋友|女朋友|恋人|交往对象)/.test(cleaned);
  const hiringPartTimer=/(招聘兼职|招兼职|兼职员工|兼职人员|兼职店员|兼职人手|找兼职人员)/.test(cleaned);
  const sideJob=/(兼职|副业|私活|接单|外包活|临时项目|临时工作)/.test(cleaned)&&!hiringPartTimer;
- const eventSubtype=socialFriends?"friendship_new":promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":sideJob?"side_job":hiringPartTimer?"part_time_hire":base.object?.subtype||"general";
+ const eventSubtype=jobTenure?"job_tenure":socialFriends?"friendship_new":promotion?"promotion":demotion?"demotion":official?"appointment":breakup?"breakup":sideJob?"side_job":hiringPartTimer?"part_time_hire":base.object?.subtype||"general";
  const recognize=[
   ["health",/健康|身体|症状|生病|疾病|病情|手术|康复|怀孕|胎儿/],
   ["legal",/官司|法院|起诉|诉讼|仲裁|法律纠纷|判决/],
@@ -52,7 +53,7 @@ function question(q,requestedDomain){
   ["career",/工作|项目|职位|岗位|事业|职业|升职|降职|任命|领导|公司|门店|上班|兼职|副业|私活|接单|外包活/]
  ];
  const detected=recognize.find(([,reg])=>reg.test(cleaned))?.[0];
- let field=socialFriends?"social":(promotion||demotion||official||sideJob||hiringPartTimer)?"career":detected||base.field||"general";
+ let field=jobTenure?"career":socialFriends?"social":(promotion||demotion||official||sideJob||hiringPartTimer)?"career":detected||base.field||"general";
  if(!field){field=/(项目|岗位|职位|职场|升职|降职|任命)/.test(cleaned)?"career":null;}
  const manual={money:"finance",house:"property",friends:"cooperation",career:"career",relationship:"relationship",children:"children",health:"health"};
  if(!promotion&&!demotion&&!official&&requestedDomain&&requestedDomain!=="auto"&&manual[requestedDomain])field=manual[requestedDomain];
@@ -76,7 +77,7 @@ function question(q,requestedDomain){
 function selectUse(i){
  const b=DOMAIN[i.field]||DOMAIN.general;
  return {primary:b.primary,secondary:b.secondary.slice(),label:b.label,topic:
-  i.object.subtype==="friendship_new"?"结识新朋友":i.object.subtype==="promotion"?"正式升职":i.object.subtype==="demotion"?"降职或职级下调":i.object.subtype==="appointment"?"正式任命":i.object.subtype==="side_job"?"新的兼职工作":i.object.subtype==="part_time_hire"?"兼职人员到岗":
+  i.object.subtype==="job_tenure"?"在当前公司留任的时长":i.object.subtype==="friendship_new"?"结识新朋友":i.object.subtype==="promotion"?"正式升职":i.object.subtype==="demotion"?"降职或职级下调":i.object.subtype==="appointment"?"正式任命":i.object.subtype==="side_job"?"新的兼职工作":i.object.subtype==="part_time_hire"?"兼职人员到岗":
   i.field==="career"&&i.intent==="new_opportunity"?"新工作或项目":b.event};
 }
 function branch(r){return String(r||"").slice(-1)}
@@ -284,6 +285,17 @@ function humanize(c,i,use,j,verified){
   insufficient_evidence:"这张卦关于"+scope+"的关键信息不够，暂时不能判断会不会发生。"
  }[j.status];
  let lead=verdict;
+ if(i.object.subtype==="job_tenure"){
+ const self=c.rows[c.a.shi-1],other=c.rows[c.a.ying-1];
+ const quiet=c.totals.every(n=>n===7||n===8);
+ const monthBreak=OPPOSITE[branch(c.month)]===branch(self.gz);
+ return {headline:"你问的是还会在现在的公司待多久，而不是工作什么时候发展。这张卦不能支持一个可靠的离职月份，也没有充分依据断定你近期一定会离开。不能从静卦推断你会永远留下。",
+ why:[quiet?"本卦六爻安静，没有动爻，不能据此直接推算什么时候离职；静卦也不等于永远留任。":"有动爻不等于必然离职，必须核查世爻与职位有关的关系。",
+ "世爻"+self.gz+self.r+(monthBreak?"遇月建"+c.month+"冲，属于传统上的制约线索；不能把月冲直接换算为离职日期。":"的日月作用需要综合旺衰判断，不能直接确定留任长度。"),
+ "官鬼可辅助参考工作职位；应爻"+other.gz+other.r+"可观察外部工作关系，但这些都不足以证明具体去留时间。"],
+ brief:"本卦"+c.a.name+"，变"+c.b.name+"。",action:"关注现实中的劳动合同、岗位调整、实际求职行动和明确的离职决定，才能判断在职时长。",
+ scope:"",technicalNote:"六爻仅用于传统民俗解读，无法可靠预测实际离职时间；没有传统规则依据时不编造月份。"};
+ }
  if(i.object.subtype==="friendship_new"){
   const world=c.rows[c.a.shi-1],other=c.rows[c.a.ying-1];
   const siblings=c.rows.filter(r=>r.r==="兄弟");

@@ -62,7 +62,8 @@ function question(q,requestedDomain){
  const isOutcome=/(会不会|是否|能不能|能否|能否在|能.*吗|会.*吗)/.test(cleaned);
  const isTrend=/(未来|接下来|后续|发展|走向|趋势|会怎么样)/.test(cleaned);
  const intent=isWhen?"timing":isChoice?"accept_decision":isComparison?"comparison":isRisk?"risk":isImpact?"personal_impact":isOpportunity?"new_opportunity":isOutcome?"outcome":isTrend?"trend":base.intent||"outcome";
- const window=base.window||"未明确时间范围";
+ const parsedWindow=cleaned.match(/(?:未来|接下来|今后|后续|近)(?:的)?(?:[0-9]+|[零〇一二两三四五六七八九十百半]+)(?:个)?(?:天|周|月|年)/)?.[0];
+ const window=parsedWindow||base.window||"未明确时间范围";
  return {ok:true,question:text,field,fieldName:DOMAIN[field]?.label||"事情",intent,
   window,object:{domain:field,subtype:eventSubtype,primary_intent:intent,time_window:window,original_question:text}};
 }
@@ -214,7 +215,20 @@ function humanize(c,i,use,j,verified){
  }else if(i.intent==="comparison"){
   lead="这张卦还不足以公平比较两个选择，不能凭它直接说哪个好。需要先确定各对象对应的判断依据。";
  }
- if(i.field==="health")lead="这类健康问题不能用卦象判断诊断、治疗或康复结果。可以查看传统文化象义，但具体健康问题应依据医学信息。";
+ if(i.intent==="new_opportunity"&&i.object.subtype==="side_job"){
+    const hasEmerging=j.supporting_factors.some(x=>x.id.startsWith("emerging_job_"));
+    const hasClash=j.restricting_factors.some(x=>x.id==="self_month_clash");
+    const time=i.window!=="未明确时间范围"?i.window+"，":"接下来，";
+    const formation=hasEmerging?"卦里有从任务安排变化到工作机会的传统象义线索，说明可以关注有没有人来谈兼职。":"目前缺少直接指向新兼职的变化线索。";
+    const obstacle=hasClash?"不过也有承接条件不稳的象义，":"";
+    const startObstacle=c.b.name.includes("屯")?"变卦「屯」也有事情刚起步、推进不易的传统含义。":"";
+    lead="看"+time+(hasEmerging?"有出现兼职接洽或邀约的传统线索，但不能确定会真正接到兼职。":"目前不能判断会不会有新兼职找上门。")+
+      obstacle+startObstacle+"尤其不能把有人联系等同于已经敲定工作和报酬。";
+    // 与模板化“工作发展较有利”不同，区分接洽、确认、开工、到账四个阶段。
+    if(hasEmerging)j.opportunity_stage="contact_possible_unconfirmed";
+    j.reading_basis=formation;
+ }
+  if(i.field==="health")lead="这类健康问题不能用卦象判断诊断、治疗或康复结果。可以查看传统文化象义，但具体健康问题应依据医学信息。";
  const mainEvidence=[...j.restricting_factors,...j.supporting_factors,...j.unresolved_factors]
   .sort((a,b)=>b.priority-a.priority).slice(0,3);
  if(!mainEvidence.length)mainEvidence.push(...j.contextual_factors.slice(0,2));
@@ -241,7 +255,10 @@ function humanize(c,i,use,j,verified){
  let why=mainEvidence.map(plain);
  if(j.conflict)why.push("既有支持也有制约，现有规则还不足以分出主次。");
  if(!why.length)why=["当前没有足够的、可以直接核查的核心用神信息。"];
- why=[...new Set(why)].slice(0,3);
+ if(i.intent==="new_opportunity"&&i.object.subtype==="side_job"&&c.b.name.includes("屯")){
+    why.push("变卦是「屯」，传统象义提示事情刚起步时可能需要反复协调；不能当成一个月内已能上岗的证据。");
+ }
+  why=[...new Set(why)].slice(0,3);
  const brief="本卦"+c.a.name+(c.a.name!==c.b.name?"，变"+c.b.name:"（静卦）")+"。卦名和变卦只作传统象义参考，不能单凭卦名断成败。";
  const config=DOMAIN[i.field]||DOMAIN.general;
  const action=i.object.subtype==="side_job"?"留意是否有人明确询问你的档期、报价或合作范围；只有确定工作内容、报酬和开始时间，才算真正接到兼职":

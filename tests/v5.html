@@ -8,7 +8,7 @@ pre{white-space:pre-wrap;background:#fff;padding:20px;border:1px solid #ccd8c9;b
 <script src="../engine-v3.js?v=5.0.0"></script>
 <script src="../engine-v4.js?v=5.0.0"></script>
 <script src="../engine-v42.js?v=5.0.0"></script>
-<script src="../engine-v5.js?v=5.1.0"></script>
+<script src="../engine-v5.js?v=5.2.0"></script>
 <script>
 (async()=>{
  const results=[],add=(label,good,detail="")=>results.push({label,pass:!!good,detail});
@@ -146,7 +146,7 @@ function sampleQian(){
  add("真实兼职：泽雷随→水雷屯原始数据一致",side.ok&&side.judgment.selected?.gz==="丁酉");
  add("兼职问题识别为新机会而非职业趋势",side.intent.field==="career"&&side.intent.intent==="new_opportunity"&&side.intent.object.subtype==="side_job");
  add("明确保留未来一个月",side.intent.window==="未来一个月");
- add("直接回答兼职接洽与兑现",side.answer.includes("来找你谈兼职")&&side.answer.includes("能不能谈成"));
+ add("直接回答兼职接洽与兑现",side.answer.includes("兼职接洽")&&side.answer.includes("能不能谈成"));
  add("动变：父母亥水化官鬼申金进入证据",side.judgment.supporting_factors.some(x=>x.id==="emerging_job_3"&&x.fact.includes("丁亥父母")&&x.fact.includes("戊申官鬼")));
  add("新机会：回头生作为辅助证据",side.judgment.supporting_factors.some(x=>x.id==="emerging_support_3"));
  add("实际世辰遭月戌冲，不可只讲有利",side.judgment.restricting_factors.some(x=>x.id==="self_month_clash")&&side.judgment.status==="mixed_signals");
@@ -161,6 +161,36 @@ function sampleQian(){
  add("招聘兼职员工≠我接兼职",hire.object?.subtype==="part_time_hire");
  const acceptPart=YiYaoEngineV5.identify("有一份兼职，我要不要接？");
  add("接受现有兼职≠新兼职机会",acceptPart.intent==="accept_decision");
+ // 2026-10-13 17:24 真实卦例：雷泽归妹→地天泰，三、四爻发动。
+ function incomingPartTimeQ(question="未来一个月会有兼职吗？"){
+  const throwing=[[2,3,2],[2,2,3],[2,2,2],[3,3,3],[3,3,2],[3,2,3]],
+   totals=throwing.map(x=>x.reduce((a,b)=>a+b,0)),
+   bits=totals.map(x=>x%2),
+   gz=["丁巳","丁卯","丁丑","庚午","庚申","庚戌"],
+   vgz=["甲子","甲寅","甲辰","癸丑","癸亥","癸酉"],
+   kin=["官鬼","妻财","父母","官鬼","兄弟","父母"],
+   vkin=["子孙","妻财","父母","父母","子孙","兄弟"];
+  return {question,t:{day:"庚申"},throwing,totals,bits,changed:[1,1,1,0,0,0],
+    a:{name:"雷泽归妹",palace:"兑宫",home:"金",shi:3,ying:6},
+    b:{name:"地天泰"},
+    rows:gz.map((g,i)=>({i,gz:g,vgz:vgz[i],r:kin[i],vr:vkin[i],animal:animals[i],empty:i===2})),
+    empty:["子","丑"],month:"戌",day:"申"};
+ }
+ const newSide=YiYaoEngineV5.interpret(incomingPartTimeQ());
+ add("新真实兼职卦例：归妹→泰，三四爻动",newSide.ok&&newSide.intent.intent==="new_opportunity"&&newSide.intent.window==="未来一个月");
+ add("两个官鬼爻择唯一发动主用神",newSide.judgment.selected?.gz==="庚午");
+ add("官鬼本身发动必须入综合判断",newSide.judgment.supporting_factors.some(x=>x.id==="active_office_3"));
+ add("官鬼午火变癸丑父母旬空",newSide.judgment.unresolved_factors.some(x=>x.id==="office_paper_void_3"&&x.fact.includes("癸丑")));
+ add("世爻丁丑旬空且发动",newSide.judgment.unresolved_factors.some(x=>x.id==="self_move_void"&&x.fact.includes("丁丑")));
+ add("世爻丑进辰进神",newSide.judgment.supporting_factors.some(x=>x.id==="self_advance"&&x.fact.includes("丁丑")&&x.fact.includes("甲辰")));
+ add("世变甲辰与戌月相冲",newSide.judgment.unresolved_factors.some(x=>x.id==="self_change_month_clash"));
+ add("未兑现机会应区别于简单有利",newSide.judgment.status==="opportunity_unsettled"&&newSide.judgment.opportunity_stage==="movement_with_unsettled_conditions");
+ add("直接回应一个月兼职，而非上级评价",newSide.answer.includes("未来一个月")&&newSide.answer.includes("兼职相关")&&!newSide.answer.includes("上级评价"));
+ add("九四愆期延期象义不能被忽略",newSide.answer.includes("延期")&&newSide.html.includes("愆期，迟归有时"));
+ add("双动爻工作机会和上卦更改对应",newSide.judgment.supporting_factors.some(x=>x.id==="active_office_3")&&newSide.judgment.unresolved_factors.some(x=>x.id==="multi_motion"));
+ add("新旧兼职卦象综合结果不同",newSide.judgment.status!==side.judgment.status&&newSide.answer!==side.answer);
+ const differentQuestion=YiYaoEngineV5.interpret(incomingPartTimeQ("这个已经介绍给我的兼职要不要接？"));
+ add("已有兼职是否接受不得错判新机会",differentQuestion.intent.intent==="accept_decision");
  const health=q(sampleBigOver,"我的身体健康会怎样？");
  add("健康结论保留医疗边界",health.judgment.status==="insufficient_evidence"&&health.answer.includes("不能用卦象"));
  const injected=sampleG();injected.a.shi=4;
